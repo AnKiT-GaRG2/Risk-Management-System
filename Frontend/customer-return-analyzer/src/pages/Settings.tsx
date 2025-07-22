@@ -9,6 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import useDarkMode from "@/hooks/use-dark-mode";
+
 import { 
   Settings as SettingsIcon, 
   Bell, 
@@ -19,7 +21,9 @@ import {
   Save,
   AlertTriangle,
   Plus,
-  Trash2
+  Trash2,
+  Moon,
+  Sun 
 } from "lucide-react";
 
 const Settings = () => {
@@ -27,7 +31,7 @@ const Settings = () => {
     low: 40,
     high: 70
   });
-  
+
   const [notifications, setNotifications] = useState({
     emailAlerts: true,
     dailyReports: true,
@@ -41,6 +45,7 @@ const Settings = () => {
     alertFrequency: "immediate"
   });
 
+  const { isDark, toggleDarkMode } = useDarkMode();
   const { toast } = useToast();
 
   const handleSaveSettings = () => {
@@ -61,11 +66,19 @@ const Settings = () => {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <SettingsIcon className="h-8 w-8 text-primary" />
-        <div>
-          <h2 className="text-2xl font-bold text-foreground">System Settings</h2>
-          <p className="text-muted-foreground">Configure risk analysis parameters and system preferences</p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <SettingsIcon className="h-8 w-8 text-primary" />
+          <div>
+            <h2 className="text-2xl font-bold text-foreground">System Settings</h2>
+            <p className="text-muted-foreground">Configure risk analysis parameters and system preferences</p>
+          </div>
+        </div>
+        {/* Dark Mode Toggle */}
+        <div className="flex items-center gap-2">
+          <Sun className="h-5 w-5 text-yellow-400" />
+          <Switch checked={isDark} onCheckedChange={toggleDarkMode} />
+          <Moon className="h-5 w-5 text-blue-500" />
         </div>
       </div>
 
@@ -93,7 +106,6 @@ const Settings = () => {
                   max="100"
                 />
               </div>
-              
               <div>
                 <Label htmlFor="highThreshold">High Risk Threshold ({riskThresholds.high}-100)</Label>
                 <Input
@@ -118,15 +130,11 @@ const Settings = () => {
                   Add Rule
                 </Button>
               </div>
-              
               <div className="space-y-3">
                 {riskRules.map((rule) => (
                   <div key={rule.id} className="flex items-center justify-between p-3 border rounded-lg">
                     <div className="flex items-center gap-3">
-                      <Switch 
-                        checked={rule.active}
-                        onCheckedChange={() => {}}
-                      />
+                      <Switch checked={rule.active} onCheckedChange={() => {}} />
                       <div>
                         <p className="font-medium text-sm">{rule.name}</p>
                         <p className="text-xs text-muted-foreground">{rule.condition}</p>
@@ -156,75 +164,51 @@ const Settings = () => {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label htmlFor="emailAlerts">Email Alerts</Label>
-                  <p className="text-sm text-muted-foreground">Receive email notifications for high-risk events</p>
+              {[
+                { id: "emailAlerts", label: "Email Alerts", desc: "Receive email notifications for high-risk events" },
+                { id: "dailyReports", label: "Daily Reports", desc: "Automatic daily summary reports" },
+                { id: "highRiskAlerts", label: "High Risk Alerts", desc: "Immediate alerts for high-risk customers" },
+                { id: "systemUpdates", label: "System Updates", desc: "Notifications about system maintenance" }
+              ].map((item) => (
+                <div className="flex items-center justify-between" key={item.id}>
+                  <div>
+                    <Label htmlFor={item.id}>{item.label}</Label>
+                    <p className="text-sm text-muted-foreground">{item.desc}</p>
+                  </div>
+                  <Switch
+                    id={item.id}
+                    checked={notifications[item.id as keyof typeof notifications]}
+                    onCheckedChange={(checked) =>
+                      setNotifications({ ...notifications, [item.id]: checked })
+                    }
+                  />
                 </div>
-                <Switch
-                  id="emailAlerts"
-                  checked={notifications.emailAlerts}
-                  onCheckedChange={(checked) => setNotifications({...notifications, emailAlerts: checked})}
-                />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label htmlFor="dailyReports">Daily Reports</Label>
-                  <p className="text-sm text-muted-foreground">Automatic daily summary reports</p>
-                </div>
-                <Switch
-                  id="dailyReports"
-                  checked={notifications.dailyReports}
-                  onCheckedChange={(checked) => setNotifications({...notifications, dailyReports: checked})}
-                />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label htmlFor="highRiskAlerts">High Risk Alerts</Label>
-                  <p className="text-sm text-muted-foreground">Immediate alerts for high-risk customers</p>
-                </div>
-                <Switch
-                  id="highRiskAlerts"
-                  checked={notifications.highRiskAlerts}
-                  onCheckedChange={(checked) => setNotifications({...notifications, highRiskAlerts: checked})}
-                />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label htmlFor="systemUpdates">System Updates</Label>
-                  <p className="text-sm text-muted-foreground">Notifications about system maintenance</p>
-                </div>
-                <Switch
-                  id="systemUpdates"
-                  checked={notifications.systemUpdates}
-                  onCheckedChange={(checked) => setNotifications({...notifications, systemUpdates: checked})}
-                />
-              </div>
+              ))}
             </div>
 
             <Separator />
 
             <div className="space-y-4">
               <h4 className="font-medium">Email Configuration</h4>
-              
               <div>
                 <Label htmlFor="alertRecipients">Alert Recipients</Label>
                 <Textarea
                   id="alertRecipients"
                   value={emailSettings.alertRecipients}
-                  onChange={(e) => setEmailSettings({...emailSettings, alertRecipients: e.target.value})}
+                  onChange={(e) => setEmailSettings({ ...emailSettings, alertRecipients: e.target.value })}
                   className="mt-1"
                   rows={2}
                   placeholder="email1@company.com, email2@company.com"
                 />
               </div>
-              
               <div>
                 <Label htmlFor="alertFrequency">Alert Frequency</Label>
-                <Select value={emailSettings.alertFrequency} onValueChange={(value) => setEmailSettings({...emailSettings, alertFrequency: value})}>
+                <Select
+                  value={emailSettings.alertFrequency}
+                  onValueChange={(value) =>
+                    setEmailSettings({ ...emailSettings, alertFrequency: value })
+                  }
+                >
                   <SelectTrigger className="mt-1">
                     <SelectValue />
                   </SelectTrigger>
@@ -252,38 +236,15 @@ const Settings = () => {
             <div className="space-y-4">
               <div>
                 <Label htmlFor="dataRetention">Data Retention Period (days)</Label>
-                <Input
-                  id="dataRetention"
-                  type="number"
-                  defaultValue="365"
-                  className="mt-1"
-                  min="30"
-                  max="2555"
-                />
-                <p className="text-xs text-muted-foreground mt-1">How long to keep historical return data</p>
+                <Input id="dataRetention" type="number" defaultValue="365" className="mt-1" min="30" max="2555" />
               </div>
-              
               <div>
                 <Label htmlFor="apiRate">API Rate Limit (requests/minute)</Label>
-                <Input
-                  id="apiRate"
-                  type="number"
-                  defaultValue="1000"
-                  className="mt-1"
-                  min="100"
-                />
+                <Input id="apiRate" type="number" defaultValue="1000" className="mt-1" min="100" />
               </div>
-              
               <div>
                 <Label htmlFor="batchSize">Batch Processing Size</Label>
-                <Input
-                  id="batchSize"
-                  type="number"
-                  defaultValue="500"
-                  className="mt-1"
-                  min="50"
-                  max="2000"
-                />
+                <Input id="batchSize" type="number" defaultValue="500" className="mt-1" min="50" max="2000" />
               </div>
             </div>
 
@@ -294,21 +255,17 @@ const Settings = () => {
                 <AlertTriangle className="h-4 w-4 text-amber-500" />
                 Danger Zone
               </h4>
-              
-              <div className="p-4 border border-red-200 rounded-lg bg-red-50">
+
+<div className="p-4 border rounded-lg bg-red-100 text-red-900 dark:bg-[#2a1a1a] dark:border-[#553333] dark:text-red-300">
                 <h5 className="font-medium text-red-800 mb-2">Reset All Settings</h5>
-                <p className="text-sm text-red-600 mb-3">This will reset all configuration to factory defaults. This action cannot be undone.</p>
-                <Button variant="destructive" size="sm">
-                  Reset Settings
-                </Button>
+                <p className="text-sm text-red-600 mb-3">This will reset all configuration to factory defaults.</p>
+                <Button variant="destructive" size="sm">Reset Settings</Button>
               </div>
-              
-              <div className="p-4 border border-red-200 rounded-lg bg-red-50">
+
+<div className="p-4 border rounded-lg bg-red-100 text-red-900 dark:bg-[#2a1a1a] dark:border-[#553333] dark:text-red-300">
                 <h5 className="font-medium text-red-800 mb-2">Clear All Data</h5>
-                <p className="text-sm text-red-600 mb-3">Permanently delete all customer data and analytics. This action cannot be undone.</p>
-                <Button variant="destructive" size="sm">
-                  Clear Data
-                </Button>
+                <p className="text-sm text-red-600 mb-3">Permanently delete all customer data and analytics.</p>
+                <Button variant="destructive" size="sm">Clear Data</Button>
               </div>
             </div>
           </CardContent>
@@ -332,7 +289,7 @@ const Settings = () => {
                   Add User
                 </Button>
               </div>
-              
+
               {[
                 { name: "Admin User", email: "admin@ecommerce.com", role: "Administrator", active: true },
                 { name: "Risk Manager", email: "risk@ecommerce.com", role: "Risk Analyst", active: true },
@@ -344,13 +301,9 @@ const Settings = () => {
                     <p className="text-sm text-muted-foreground">{user.email}</p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Badge variant={user.active ? "default" : "secondary"}>
-                      {user.role}
-                    </Badge>
+                    <Badge variant={user.active ? "default" : "secondary"}>{user.role}</Badge>
                     <Switch checked={user.active} />
-                    <Button variant="ghost" size="sm">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <Button variant="ghost" size="sm"><Trash2 className="h-4 w-4" /></Button>
                   </div>
                 </div>
               ))}
@@ -360,27 +313,18 @@ const Settings = () => {
 
             <div className="space-y-4">
               <h4 className="font-medium">Session Settings</h4>
-              
+
               <div>
                 <Label htmlFor="sessionTimeout">Session Timeout (minutes)</Label>
-                <Input
-                  id="sessionTimeout"
-                  type="number"
-                  defaultValue="60"
-                  className="mt-1"
-                  min="15"
-                  max="480"
-                />
+                <Input id="sessionTimeout" type="number" defaultValue="60" className="mt-1" min="15" max="480" />
               </div>
-              
+
               <div className="flex items-center justify-between">
                 <div>
                   <Label htmlFor="forcePassword">Force Password Reset</Label>
                   <p className="text-sm text-muted-foreground">Require all users to reset passwords</p>
                 </div>
-                <Button variant="outline" size="sm">
-                  Force Reset
-                </Button>
+                <Button variant="outline" size="sm">Force Reset</Button>
               </div>
             </div>
           </CardContent>
