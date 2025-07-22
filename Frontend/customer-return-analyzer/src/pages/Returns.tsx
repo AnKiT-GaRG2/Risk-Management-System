@@ -329,7 +329,7 @@ const Returns = () => {
                             </DialogHeader>
                             
                             {selectedReturn && (
-                              <div className="space-y-6">
+                              <div className="space-y-6 max-h-[75vh] overflow-y-auto pr-2">
                                 {/* Header Info */}
                                 <div className="grid grid-cols-2 gap-6">
                                   <Card>
