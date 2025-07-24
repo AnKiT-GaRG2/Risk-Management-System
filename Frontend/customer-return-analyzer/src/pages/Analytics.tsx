@@ -50,6 +50,35 @@ const Analytics = () => {
     { name: "High Risk", value: 284, color: "#EF4444" }
   ];
 
+  // Calculate total for percentage
+  const totalRisk = riskDistribution.reduce((sum, item) => sum + item.value, 0);
+
+  // Custom label function for pie chart
+  const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, name, value, index }) => {
+    const RADIAN = Math.PI / 180;
+    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+    const percentage = ((value / totalRisk) * 100).toFixed(1);
+
+    // Only show label if the percentage is above 3% to avoid overlapping on small sections
+    if (percentage < 3) return null;
+
+    return (
+      <text 
+        x={x} 
+        y={y} 
+        fill="white" 
+        textAnchor={x > cx ? 'start' : 'end'} 
+        dominantBaseline="central"
+        fontSize="12"
+        fontWeight="bold"
+      >
+        {`${percentage}%`}
+      </text>
+    );
+  };
+
   const topReasons = [
     { reason: "Size/Fit Issues", count: 412, percentage: 28.5 },
     { reason: "Defective/Damaged", count: 356, percentage: 24.7 },
@@ -187,25 +216,47 @@ const Analytics = () => {
             <CardDescription>Breakdown of customers by risk level</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={riskDistribution}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percentage }) => `${name} ${percentage}%`}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {riskDistribution.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
+            <div className="space-y-4">
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={riskDistribution}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={renderCustomLabel}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {riskDistribution.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    formatter={(value: number) => [
+                      `${value.toLocaleString()} customers (${((value / totalRisk) * 100).toFixed(1)}%)`,
+                      'Count'
+                    ]}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+              
+              {/* Legend for all screens */}
+              <div className="flex flex-wrap justify-center gap-4">
+                {riskDistribution.map((entry, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <div 
+                      className="w-3 h-3 rounded-full" 
+                      style={{ backgroundColor: entry.color }}
+                    />
+                    <span className="text-sm text-muted-foreground">
+                      {entry.name}: {((entry.value / totalRisk) * 100).toFixed(1)}%
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
