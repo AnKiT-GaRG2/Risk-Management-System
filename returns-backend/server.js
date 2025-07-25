@@ -4,10 +4,27 @@ const cors = require("cors");
 require("dotenv").config();
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || origin.startsWith("http://localhost")) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true,
+}));
+
 app.use(express.json());
 
-// Sample test route
+// Import the returns router
+const returnsRouter = require("./routes/returns");
+
+// Mount the router at /api/returns
+app.use("/api/returns", returnsRouter);
+
+// Sample route
 app.get("/", (req, res) => {
   res.send("Backend is running");
 });
