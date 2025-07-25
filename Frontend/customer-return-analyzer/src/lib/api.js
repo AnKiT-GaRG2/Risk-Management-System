@@ -49,5 +49,8 @@ export const logout = async () => api.post('/auth/logout', {});
 
 export const registerAdmin = async (data) => api.post('/auth/register', data);
 
+//api call for fetching the dashboard data
+export const getDashboardData = async () => api.get('/dashboard');
+
 
 export default api;
