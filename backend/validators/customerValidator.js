@@ -18,32 +18,39 @@ const createCustomerSchema = Joi.object({
         }),
     email: Joi.string()
         .email()
+        .required() 
         .messages({
-            'string.email': 'Please provide a valid email address'
+            'string.email': 'Please provide a valid email address',
+            'any.required': 'Email is required'
         }),
     address: Joi.string().allow(''), // Address can be an empty string
     totalOrders: Joi.number()
         .integer()
         .min(0)
         .default(0)
+        .required()
         .messages({
             'number.base': 'Total orders must be a number',
             'number.integer': 'Total orders must be an integer',
-            'number.min': 'Total orders cannot be negative'
+            'number.min': 'Total orders cannot be negative',
+            'any.required': 'Total orders is required'
         }),
     totalReturns: Joi.number()
         .integer()
         .min(0)
         .default(0)
+        .required() 
         .messages({
             'number.base': 'Total returns must be a number',
             'number.integer': 'Total returns must be an integer',
-            'number.min': 'Total returns cannot be negative'
-        })
+            'number.min': 'Total returns cannot be negative',
+            'any.required': 'Total returns is required'
+        }),
+    returnRate: Joi.number().min(0).max(100).optional(),
+    lastReturnDate: Joi.date().iso().optional(),
+    riskAnalysis: Joi.string().optional()
 });
 
-// Joi schema for updating an existing customer
-// All fields are optional as it's a partial update
 const updateCustomerSchema = Joi.object({
     name: Joi.string().min(3).messages({
         'string.min': 'Customer name must be at least 3 characters long'
@@ -68,9 +75,12 @@ const updateCustomerSchema = Joi.object({
             'number.integer': 'Total returns must be an integer',
             'number.min': 'Total returns cannot be negative'
         }),
+   
+    returnRate: Joi.number().min(0).max(100).optional(),
     lastReturnDate: Joi.date().iso().messages({
         'date.iso': 'Last return date must be a valid ISO 8601 date string'
-    })
-}).min(1); // At least one field must be provided for update
+    }),
+    riskAnalysis: Joi.string().optional() 
+}).min(1); 
 
 export { createCustomerSchema, updateCustomerSchema };
