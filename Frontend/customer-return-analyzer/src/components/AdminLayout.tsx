@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 
 const AdminLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [userCollapsedSidebar, setUserCollapsedSidebar] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
@@ -26,6 +27,40 @@ const AdminLayout = () => {
       navigate("/login");
     }
   }, [navigate]);
+
+  // Handle responsive sidebar behavior
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) { // md breakpoint
+        setIsSidebarOpen(false);
+      } else {
+        // Only auto-open if user hasn't manually collapsed it
+        if (!userCollapsedSidebar) {
+          setIsSidebarOpen(true);
+        }
+      }
+    };
+
+    // Set initial state based on screen size
+    handleResize();
+
+    // Add event listener
+    window.addEventListener('resize', handleResize);
+
+    // Cleanup
+    return () => window.removeEventListener('resize', handleResize);
+  }, [userCollapsedSidebar]);
+
+  // Custom toggle function that tracks user preference
+  const handleSidebarToggle = () => {
+    const newState = !isSidebarOpen;
+    setIsSidebarOpen(newState);
+    
+    // Track if user manually collapsed on large screen
+    if (window.innerWidth >= 768) {
+      setUserCollapsedSidebar(!newState);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("isAuthenticated");
@@ -57,8 +92,16 @@ const AdminLayout = () => {
         isSidebarOpen ? "w-64" : "w-16"
       }`}>
         {/* Sidebar Header */}
-        <div className="flex items-center justify-between p-4 border-b border-border">
-          <div className={`flex items-center gap-3 ${!isSidebarOpen && "justify-center"}`}>
+        <div className={`p-4 border-b border-border ${!isSidebarOpen ? "flex justify-center" : "flex items-center justify-between"}`}>
+          <div 
+            className={`flex items-center gap-3 transition-colors ${
+              !isSidebarOpen 
+                ? "justify-center cursor-pointer hover:bg-secondary rounded-lg p-3" 
+                : ""
+            }`}
+            onClick={!isSidebarOpen ? handleSidebarToggle : undefined}
+            title={!isSidebarOpen ? "Expand sidebar" : undefined}
+          >
             <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
               <Shield className="w-5 h-5 text-white" />
             </div>
@@ -66,14 +109,16 @@ const AdminLayout = () => {
               <span className="font-semibold text-foreground">Risk Analyzer</span>
             )}
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="h-8 w-8 p-0"
-          >
-            <Menu className="w-4 h-4" />
-          </Button>
+          {isSidebarOpen && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleSidebarToggle}
+              className="h-8 w-8 p-0"
+            >
+              <Menu className="w-4 h-4" />
+            </Button>
+          )}
         </div>
 
         {/* Navigation */}
@@ -88,7 +133,7 @@ const AdminLayout = () => {
                   isActive(item.href)
                     ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-                }`}
+                } ${!isSidebarOpen && "justify-center px-0"}`}
               >
                 <Icon className="w-5 h-5 flex-shrink-0" />
                 {isSidebarOpen && (
