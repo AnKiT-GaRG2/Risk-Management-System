@@ -1,16 +1,28 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  Download, 
-  FileText, 
-  Calendar, 
-  TrendingUp, 
-  Users, 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Download,
+  FileText,
+  Calendar,
+  TrendingUp,
+  Users,
   AlertTriangle,
   DollarSign,
-  BarChart3
+  BarChart3,
 } from "lucide-react";
 
 const Reports = () => {
@@ -18,12 +30,13 @@ const Reports = () => {
     {
       id: "risk-summary",
       name: "Customer Risk Summary",
-      description: "Comprehensive report of all customer risk scores and patterns",
+      description:
+        "Comprehensive report of all customer risk scores and patterns",
       icon: Users,
       frequency: "Weekly",
       lastGenerated: "2024-01-15",
       downloadCount: 45,
-      type: "PDF"
+      type: "PDF",
     },
     {
       id: "return-analysis",
@@ -33,7 +46,7 @@ const Reports = () => {
       frequency: "Monthly",
       lastGenerated: "2024-01-01",
       downloadCount: 23,
-      type: "Excel"
+      type: "Excel",
     },
     {
       id: "high-risk-alerts",
@@ -43,7 +56,7 @@ const Reports = () => {
       frequency: "Daily",
       lastGenerated: "2024-01-15",
       downloadCount: 89,
-      type: "PDF"
+      type: "PDF",
     },
     {
       id: "financial-impact",
@@ -53,28 +66,30 @@ const Reports = () => {
       frequency: "Monthly",
       lastGenerated: "2024-01-01",
       downloadCount: 12,
-      type: "Excel"
+      type: "Excel",
     },
     {
       id: "category-insights",
       name: "Category Performance Insights",
-      description: "Product category breakdown with return rates and risk scores",
+      description:
+        "Product category breakdown with return rates and risk scores",
       icon: BarChart3,
       frequency: "Bi-weekly",
       lastGenerated: "2024-01-08",
       downloadCount: 34,
-      type: "PDF"
+      type: "PDF",
     },
     {
       id: "trend-forecast",
       name: "Trend Forecasting Report",
-      description: "Predictive analysis of return patterns and risk projections",
+      description:
+        "Predictive analysis of return patterns and risk projections",
       icon: FileText,
       frequency: "Quarterly",
       lastGenerated: "2024-01-01",
       downloadCount: 8,
-      type: "PDF"
-    }
+      type: "PDF",
+    },
   ];
 
   const scheduledReports = [
@@ -82,34 +97,49 @@ const Reports = () => {
       name: "Daily Risk Alerts",
       nextRun: "2024-01-16 09:00",
       recipients: ["admin@ecommerce.com", "risk@ecommerce.com"],
-      status: "active"
+      status: "active",
     },
     {
       name: "Weekly Summary",
       nextRun: "2024-01-22 08:00",
       recipients: ["admin@ecommerce.com", "management@ecommerce.com"],
-      status: "active"
+      status: "active",
     },
     {
       name: "Monthly Deep Dive",
       nextRun: "2024-02-01 10:00",
       recipients: ["admin@ecommerce.com", "analytics@ecommerce.com"],
-      status: "paused"
-    }
+      status: "paused",
+    },
   ];
 
   const getFrequencyBadge = (frequency: string) => {
     switch (frequency) {
       case "Daily":
-        return { variant: "default" as const, color: "bg-blue-100 text-blue-800" };
+        return {
+          variant: "default" as const,
+          color: "bg-blue-100 text-blue-800",
+        };
       case "Weekly":
-        return { variant: "secondary" as const, color: "bg-green-100 text-green-800" };
+        return {
+          variant: "secondary" as const,
+          color: "bg-green-100 text-green-800",
+        };
       case "Monthly":
-        return { variant: "outline" as const, color: "bg-purple-100 text-purple-800" };
+        return {
+          variant: "outline" as const,
+          color: "bg-purple-100 text-purple-800",
+        };
       case "Quarterly":
-        return { variant: "destructive" as const, color: "bg-orange-100 text-orange-800" };
+        return {
+          variant: "destructive" as const,
+          color: "bg-orange-100 text-orange-800",
+        };
       default:
-        return { variant: "outline" as const, color: "bg-gray-100 text-gray-800" };
+        return {
+          variant: "outline" as const,
+          color: "bg-gray-100 text-gray-800",
+        };
     }
   };
 
@@ -118,8 +148,12 @@ const Reports = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row gap-4 justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-foreground">Reports & Analytics</h2>
-          <p className="text-muted-foreground">Generate and schedule comprehensive business reports</p>
+          <h2 className="text-2xl font-bold text-foreground">
+            Reports & Analytics
+          </h2>
+          <p className="text-muted-foreground">
+            Generate and schedule comprehensive business reports
+          </p>
         </div>
         <div className="flex gap-3">
           <Select defaultValue="all">
@@ -147,7 +181,9 @@ const Reports = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Reports Generated</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Reports Generated
+                </p>
                 <p className="text-2xl font-bold">156</p>
                 <p className="text-xs text-muted-foreground mt-1">This month</p>
               </div>
@@ -155,40 +191,52 @@ const Reports = () => {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Auto Downloads</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Auto Downloads
+                </p>
                 <p className="text-2xl font-bold">89</p>
-                <p className="text-xs text-muted-foreground mt-1">Scheduled reports</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Scheduled reports
+                </p>
               </div>
               <Download className="h-8 w-8 text-green-600" />
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Active Schedules</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Active Schedules
+                </p>
                 <p className="text-2xl font-bold">12</p>
-                <p className="text-xs text-muted-foreground mt-1">Running reports</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Running reports
+                </p>
               </div>
               <Calendar className="h-8 w-8 text-purple-600" />
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Data Points</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Data Points
+                </p>
                 <p className="text-2xl font-bold">2.4M</p>
-                <p className="text-xs text-muted-foreground mt-1">Total analyzed</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Total analyzed
+                </p>
               </div>
               <BarChart3 className="h-8 w-8 text-orange-600" />
             </div>
@@ -200,46 +248,58 @@ const Reports = () => {
       <Card>
         <CardHeader>
           <CardTitle>Report Templates</CardTitle>
-          <CardDescription>Pre-configured reports ready to generate or schedule</CardDescription>
+          <CardDescription>
+            Pre-configured reports ready to generate or schedule
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {reportTemplates.map((report) => {
               const Icon = report.icon;
               const frequencyBadge = getFrequencyBadge(report.frequency);
-              
+
               return (
-                <Card key={report.id} className="relative group hover:shadow-md transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="flex items-start gap-4">
+                <Card
+                  key={report.id}
+                  className="h-full flex flex-col justify-between group hover:shadow-md transition-shadow bg-muted text-foreground"
+                >
+                  <CardContent className="p-6 flex flex-col h-full">
+                    <div className="flex items-start gap-4 mb-4">
                       <div className="p-3 bg-primary/10 rounded-lg">
                         <Icon className="h-6 w-6 text-primary" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-foreground mb-2">{report.name}</h3>
-                        <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{report.description}</p>
-                        
+                        <h3 className="font-semibold text-foreground mb-2">
+                          {report.name}
+                        </h3>
+                        <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                          {report.description}
+                        </p>
+
                         <div className="flex items-center gap-2 mb-3">
-                          <Badge className={frequencyBadge.color}>{report.frequency}</Badge>
+                          <Badge className={frequencyBadge.color}>
+                            {report.frequency}
+                          </Badge>
                           <Badge variant="outline">{report.type}</Badge>
                         </div>
-                        
+
                         <div className="text-xs text-muted-foreground space-y-1">
                           <div>Last generated: {report.lastGenerated}</div>
                           <div>Downloads: {report.downloadCount}</div>
                         </div>
-                        
-                        <div className="flex gap-2 mt-4">
-                          <Button size="sm" className="flex-1">
-                            <Download className="h-3 w-3 mr-1" />
-                            Generate
-                          </Button>
-                          <Button size="sm" variant="outline">
-                            <Calendar className="h-3 w-3 mr-1" />
-                            Schedule
-                          </Button>
-                        </div>
                       </div>
+                    </div>
+
+                    {/* ✅ Button Section - Updated to stay inside card */}
+                    <div className="flex gap-2 mt-auto pt-2">
+                      <Button size="sm" className="flex-1">
+                        <Download className="h-3 w-3 mr-1" />
+                        Generate
+                      </Button>
+                      <Button size="sm" variant="outline">
+                        <Calendar className="h-3 w-3 mr-1" />
+                        Schedule
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -251,41 +311,62 @@ const Reports = () => {
 
       {/* Scheduled Reports */}
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-row items-center justify-between flex-wrap gap-2">
           <div>
             <CardTitle>Scheduled Reports</CardTitle>
-            <CardDescription>Automated report generation and distribution</CardDescription>
+            <CardDescription>
+              Automated report generation and distribution
+            </CardDescription>
           </div>
           <Button variant="outline">
             <Calendar className="h-4 w-4 mr-2" />
             Add Schedule
           </Button>
         </CardHeader>
+
         <CardContent>
           <div className="space-y-4">
             {scheduledReports.map((schedule, index) => (
-              <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
-                <div className="flex items-center gap-4">
+              <div
+                key={index}
+                className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg gap-4"
+              >
+                {/* Left section */}
+                <div className="flex items-start gap-4">
                   <div className="p-2 bg-blue-100 rounded-lg">
                     <Calendar className="h-5 w-5 text-blue-600" />
                   </div>
                   <div>
                     <h4 className="font-medium">{schedule.name}</h4>
-                    <p className="text-sm text-muted-foreground">Next run: {schedule.nextRun}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Next run: {schedule.nextRun}
+                    </p>
                     <p className="text-xs text-muted-foreground">
                       Recipients: {schedule.recipients.join(", ")}
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <Badge 
-                    variant={schedule.status === "active" ? "default" : "secondary"}
-                    className={schedule.status === "active" ? "bg-green-100 text-green-800" : ""}
+
+                {/* Right section */}
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                  <Badge
+                    variant={
+                      schedule.status === "active" ? "default" : "secondary"
+                    }
+                    className={
+                      schedule.status === "active"
+                        ? "bg-green-100 text-green-800"
+                        : ""
+                    }
                   >
                     {schedule.status}
                   </Badge>
-                  <Button variant="ghost" size="sm">Edit</Button>
-                  <Button variant="ghost" size="sm">Delete</Button>
+                  <Button variant="ghost" size="sm">
+                    Edit
+                  </Button>
+                  <Button variant="ghost" size="sm">
+                    Delete
+                  </Button>
                 </div>
               </div>
             ))}
@@ -297,23 +378,55 @@ const Reports = () => {
       <Card>
         <CardHeader>
           <CardTitle>Recent Downloads</CardTitle>
-          <CardDescription>Latest generated reports and downloads</CardDescription>
+          <CardDescription>
+            Latest generated reports and downloads
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
             {[
-              { name: "High Risk Customer Alerts", date: "2024-01-15 14:30", size: "2.3 MB", type: "PDF" },
-              { name: "Weekly Risk Summary", date: "2024-01-15 09:00", size: "4.1 MB", type: "Excel" },
-              { name: "Return Analysis Report", date: "2024-01-14 16:45", size: "1.8 MB", type: "PDF" },
-              { name: "Category Performance", date: "2024-01-14 11:20", size: "3.2 MB", type: "Excel" },
-              { name: "Daily Risk Alerts", date: "2024-01-14 09:00", size: "856 KB", type: "PDF" }
+              {
+                name: "High Risk Customer Alerts",
+                date: "2024-01-15 14:30",
+                size: "2.3 MB",
+                type: "PDF",
+              },
+              {
+                name: "Weekly Risk Summary",
+                date: "2024-01-15 09:00",
+                size: "4.1 MB",
+                type: "Excel",
+              },
+              {
+                name: "Return Analysis Report",
+                date: "2024-01-14 16:45",
+                size: "1.8 MB",
+                type: "PDF",
+              },
+              {
+                name: "Category Performance",
+                date: "2024-01-14 11:20",
+                size: "3.2 MB",
+                type: "Excel",
+              },
+              {
+                name: "Daily Risk Alerts",
+                date: "2024-01-14 09:00",
+                size: "856 KB",
+                type: "PDF",
+              },
             ].map((download, index) => (
-              <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+              <div
+                key={index}
+                className="flex items-center justify-between p-3 border rounded-lg"
+              >
                 <div className="flex items-center gap-3">
                   <FileText className="h-5 w-5 text-muted-foreground" />
                   <div>
                     <p className="font-medium">{download.name}</p>
-                    <p className="text-sm text-muted-foreground">{download.date} • {download.size}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {download.date} • {download.size}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
