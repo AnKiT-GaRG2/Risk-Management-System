@@ -11,8 +11,6 @@ import { ApiError } from './utils/ApiError.js';
 import authRoutes from './routes/authRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import customerRoutes from './routes/customerRoutes.js';
-import reportRoutes from './routes/reportRoutes.js';
-// import riskRoutes from './routes/riskRoutes.js'; // Uncomment if needed
 
 dotenv.config();
 
@@ -45,8 +43,6 @@ app.use('/api/auth', authRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/customers', customerRoutes);
 // app.use('/api/risk', riskRoutes); // Risk analysis routes
-
-// Test
 app.get('/', (req, res) => {
     res.send('API is running...');
 });
