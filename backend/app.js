@@ -10,18 +10,14 @@ import { ApiError } from './utils/ApiError.js';
 
 import authRoutes from './routes/authRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
+import customerRoutes from './routes/customerRoutes.js';
 import reportRoutes from './routes/reportRoutes.js';
-
-// import customerRoutes from './routes/customerRoutes.js';
-// import riskRoutes from './routes/riskRoutes.js';
-
 
 dotenv.config();
 
 const app = express();
 
 // --- Core Middleware ---
-
 app.use(rateLimit({
     windowMs: 15 * 60 * 1000, 
     max: 100, 
@@ -37,31 +33,22 @@ app.use(cors({
     credentials: true 
 }));
 
-
 app.use(express.json({ limit: '50kb' })); 
-
 app.use(express.urlencoded({ extended: true, limit: '16kb' }));
-
 app.use(cookieParser());
-
 app.use(morganMiddleware);
-app.use('/api/reports', reportRoutes); // 👈 add this line
 
 // --- Routes ---
-
-// Define your API routes
+app.use('/api/reports', reportRoutes);
 app.use('/api/auth', authRoutes); 
 app.use('/api/dashboard', dashboardRoutes);
-// app.use('/api/customers', customerRoutes); 
-// app.use('/api/risk', riskRoutes); // Risk analysis routes
+app.use('/api/customers', customerRoutes); 
+// app.use('/api/risk', riskRoutes);
 
-//test 
+// Test 
 app.get('/', (req, res) => {
     res.send('API is running...');
 });
-
-
-
 
 // Error handling middleware
 app.use(errorMiddleware);
