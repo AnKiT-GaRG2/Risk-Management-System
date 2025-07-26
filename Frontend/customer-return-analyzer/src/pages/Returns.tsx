@@ -8,9 +8,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Textarea
 } from "../components/ui";
 
-import {
-  Eye, CheckCircle, XCircle
-} from "lucide-react";
+import { Eye, CheckCircle, XCircle } from "lucide-react";
 
 const Returns = () => {
   const [returns, setReturns] = useState<any[]>([]);
@@ -39,7 +37,7 @@ const Returns = () => {
       setReturns(prev =>
         prev.map(ret => (ret._id === _id ? { ...ret, status: newStatus } : ret))
       );
-      setSelectedReturn(null); // close dialog
+      setSelectedReturn(null); // Close modal
     } catch (err) {
       alert("Failed to update return status.");
     }
@@ -54,35 +52,31 @@ const Returns = () => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Order ID</TableHead>
-            <TableHead>Customer</TableHead>
+            <TableHead>Return ID</TableHead>
+            <TableHead>Customer Name</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Reason</TableHead>
-            <TableHead>Action</TableHead>
+            <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {returns.map((item) => (
             <TableRow key={item._id}>
-              <TableCell>{item.orderId}</TableCell>
-              <TableCell>
-                {item.customer?.name ?? "N/A"}
-                <div className="text-xs text-muted-foreground">{item.customer?.email}</div>
-              </TableCell>
+              <TableCell>{item.returnId}</TableCell>
+              <TableCell>{item.customerName ?? "N/A"}</TableCell>
               <TableCell>
                 <Badge
-  variant="secondary"
-  className={
-    item.status === "approved"
-      ? "bg-green-500 text-white"
-      : item.status === "rejected"
-      ? "bg-red-500 text-white"
-      : "bg-gray-200 text-black"
-  }
->
-  {item.status}
-</Badge>
-
+                  variant="secondary"
+                  className={
+                    item.status === "approved"
+                      ? "bg-green-500 text-white"
+                      : item.status === "rejected"
+                      ? "bg-red-500 text-white"
+                      : "bg-gray-200 text-black"
+                  }
+                >
+                  {item.status ?? "pending"}
+                </Badge>
               </TableCell>
               <TableCell>{item.reason}</TableCell>
               <TableCell>
@@ -99,17 +93,14 @@ const Returns = () => {
                     </DialogHeader>
                     {selectedReturn && (
                       <div className="space-y-3">
-                        <p><strong>Customer:</strong> {selectedReturn.customer?.name}</p>
-                        <p><strong>Email:</strong> {selectedReturn.customer?.email}</p>
-                        <p><strong>Phone:</strong> {selectedReturn.customer?.phone}</p>
-                        <p><strong>Address:</strong> {selectedReturn.customer?.address}</p>
-                        <p><strong>Order ID:</strong> {selectedReturn.orderId}</p>
+                        <p><strong>Customer:</strong> {selectedReturn.customerName}</p>
+                        <p><strong>Customer ID:</strong> {selectedReturn.customerId}</p>
+                        <p><strong>Product:</strong> {selectedReturn.product}</p>
                         <p><strong>Reason:</strong> {selectedReturn.reason}</p>
-                        <p><strong>Status:</strong> {selectedReturn.status}</p>
-                        <Textarea
-                          placeholder="Add a note (optional)"
-                          className="w-full"
-                        />
+                        <p><strong>Return Date:</strong> {new Date(selectedReturn.returnDate).toLocaleDateString()}</p>
+                        <p><strong>Status:</strong> {selectedReturn.status ?? "pending"}</p>
+
+                        <Textarea placeholder="Add a note (optional)" className="w-full" />
                         <div className="flex gap-2 pt-2">
                           <Button
                             className="flex-1"
