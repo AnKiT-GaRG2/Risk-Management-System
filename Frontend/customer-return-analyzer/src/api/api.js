@@ -1,19 +1,20 @@
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_URL =
+  import.meta.env.MODE === "development"
+    ? "http://localhost:5000"
+    : import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const api = axios.create({
-  baseURL: API_URL,
-  withCredentials: true,
+  baseURL: API_URL, // http://localhost:5000
+  withCredentials: true, // for credentials like cookies
   headers: {
     "Content-Type": "application/json",
   },
 });
 
 api.interceptors.response.use(
-  (response) => {
-    return response.data;
-  },
+  (response) => response.data,
   async (error) => {
     const originalRequest = error.config;
 
@@ -23,7 +24,6 @@ api.interceptors.response.use(
       originalRequest.url !== "/auth/refresh-token"
     ) {
       originalRequest._retry = true;
-
       try {
         await api.post("/auth/refresh-token", {});
         return api(originalRequest);
@@ -46,22 +46,15 @@ api.interceptors.response.use(
 );
 
 // --- API Call Functions ---
-export const adminLogin = async (data) =>
-  await api.post("/auth/login", data);
+export const adminLogin = (data) => api.post("/auth/login", data);
+export const refreshAccessToken = () => api.post("/auth/refresh-token", {});
+export const logout = () => api.post("/auth/logout", {});
+export const registerAdmin = (data) => api.post("/auth/register", data);
 
-export const refreshAccessToken = async () =>
-  await api.post("/auth/refresh-token", {});
+// ✅ Corrected paths (remove /api)
+export const getReturns = () => api.get("/api/returns");
 
-export const logout = async () =>
-  await api.post("/auth/logout", {});
-
-export const registerAdmin = async (data) =>
-  await api.post("/auth/register", data);
-
-export const getReturns = async () =>
-  await api.get("/returns");
-
-export const updateReturnStatus = async (returnId, status) =>
-  await api.put(`/returns/${returnId}`, { status });
+export const updateReturnStatus = (returnId, status) =>
+  api.put(`/api/returns/${returnId}`, { status });
 
 export default api;

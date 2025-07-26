@@ -1,21 +1,15 @@
 import { useEffect, useState } from "react";
 // @ts-ignore
 import { getReturns, updateReturnStatus } from "../api/api";
-// adjust path as needed
 
 import {
-  Card, CardContent, CardHeader, CardTitle, CardDescription,
-  Badge, Button, Input, Select, SelectContent, SelectItem,
-  SelectTrigger, SelectValue, Table, TableBody, TableCell,
-  TableHead, TableHeader, TableRow, Dialog, DialogContent,
-  DialogHeader, DialogTitle, DialogTrigger, Textarea,
+  Card, CardContent, CardHeader, CardTitle, Badge, Button,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Textarea
 } from "../components/ui";
 
-
-
 import {
-  Search, Filter, Download, Eye, CheckCircle, XCircle,
-  Clock, AlertTriangle, Package, MessageSquare,
+  Eye, CheckCircle, XCircle
 } from "lucide-react";
 
 const Returns = () => {
@@ -39,11 +33,11 @@ const Returns = () => {
     fetchReturns();
   }, []);
 
-  const handleStatusUpdate = async (id: string, newStatus: string) => {
+  const handleStatusUpdate = async (_id: string, newStatus: string) => {
     try {
-      await updateReturnStatus(id, newStatus);
+      await updateReturnStatus(_id, newStatus);
       setReturns(prev =>
-        prev.map(ret => (ret.id === id ? { ...ret, status: newStatus } : ret))
+        prev.map(ret => (ret._id === _id ? { ...ret, status: newStatus } : ret))
       );
       setSelectedReturn(null); // close dialog
     } catch (err) {
@@ -68,65 +62,79 @@ const Returns = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-  {returns.map((item) => (
-    <TableRow key={item.id}>
-      <TableCell>{item.orderId}</TableCell>
-      <TableCell>{item.customer?.name || "N/A"}</TableCell>
-      <TableCell>
-        <Badge
-          variant={item.status === "rejected" ? "destructive" : "secondary"}
-          className={item.status === "approved" ? "bg-green-500 text-white" : ""}
-        >
-          {item.status}
-        </Badge>
-      </TableCell>
-      <TableCell>{item.reason}</TableCell>
-      <TableCell>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button onClick={() => setSelectedReturn(item)} size="sm" variant="outline">
-              <Eye className="h-4 w-4 mr-1" />
-              View
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Return Details</DialogTitle>
-            </DialogHeader>
-            {selectedReturn && (
-              <div className="space-y-4">
-                <p><strong>Customer:</strong> {selectedReturn.customer?.name || "N/A"}</p>
-                <p><strong>Order ID:</strong> {selectedReturn.orderId}</p>
-                <p><strong>Reason:</strong> {selectedReturn.reason}</p>
-                <Textarea
-                  placeholder="Add a note (optional)"
-                  className="w-full"
-                />
-                <div className="flex gap-2">
-                  <Button
-                    className="flex-1"
-                    onClick={() => handleStatusUpdate(selectedReturn.id, "approved")}
-                  >
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    Approve
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    className="flex-1"
-                    onClick={() => handleStatusUpdate(selectedReturn.id, "rejected")}
-                  >
-                    <XCircle className="h-4 w-4 mr-2" />
-                    Reject
-                  </Button>
-                </div>
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
-      </TableCell>
-    </TableRow>
-  ))}
-</TableBody>
+          {returns.map((item) => (
+            <TableRow key={item._id}>
+              <TableCell>{item.orderId}</TableCell>
+              <TableCell>
+                {item.customer?.name ?? "N/A"}
+                <div className="text-xs text-muted-foreground">{item.customer?.email}</div>
+              </TableCell>
+              <TableCell>
+                <Badge
+  variant="secondary"
+  className={
+    item.status === "approved"
+      ? "bg-green-500 text-white"
+      : item.status === "rejected"
+      ? "bg-red-500 text-white"
+      : "bg-gray-200 text-black"
+  }
+>
+  {item.status}
+</Badge>
+
+              </TableCell>
+              <TableCell>{item.reason}</TableCell>
+              <TableCell>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button onClick={() => setSelectedReturn(item)} size="sm" variant="outline">
+                      <Eye className="h-4 w-4 mr-1" />
+                      View
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Return Details</DialogTitle>
+                    </DialogHeader>
+                    {selectedReturn && (
+                      <div className="space-y-3">
+                        <p><strong>Customer:</strong> {selectedReturn.customer?.name}</p>
+                        <p><strong>Email:</strong> {selectedReturn.customer?.email}</p>
+                        <p><strong>Phone:</strong> {selectedReturn.customer?.phone}</p>
+                        <p><strong>Address:</strong> {selectedReturn.customer?.address}</p>
+                        <p><strong>Order ID:</strong> {selectedReturn.orderId}</p>
+                        <p><strong>Reason:</strong> {selectedReturn.reason}</p>
+                        <p><strong>Status:</strong> {selectedReturn.status}</p>
+                        <Textarea
+                          placeholder="Add a note (optional)"
+                          className="w-full"
+                        />
+                        <div className="flex gap-2 pt-2">
+                          <Button
+                            className="flex-1"
+                            onClick={() => handleStatusUpdate(selectedReturn._id, "approved")}
+                          >
+                            <CheckCircle className="h-4 w-4 mr-2" />
+                            Approve
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            className="flex-1"
+                            onClick={() => handleStatusUpdate(selectedReturn._id, "rejected")}
+                          >
+                            <XCircle className="h-4 w-4 mr-2" />
+                            Reject
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </DialogContent>
+                </Dialog>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
       </Table>
     </div>
   );

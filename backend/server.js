@@ -1,30 +1,33 @@
-// server.js
-
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-
+const express = require("express");
+const cors = require("cors"); // ✅ Only declared once
+const mongoose = require("mongoose");
+require("dotenv").config();
+const bodyParser=require("bodyParser");
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(cors());
+// ✅ CORS Middleware
+app.use(
+  cors({
+    origin: "http://localhost:8080",
+    methods:["GET","POST","PUT","DELETE"],// your frontend
+    credentials: true,
+  })
+);
+
 app.use(express.json());
+const returnRoutes = require('./routes/returnRoutes');
+app.use('/api/returns', returnRoutes);
 
-// ✅ Connect to MongoDB using your connection string
-mongoose.connect("mongodb+srv://shubhoffi1311:iB0TT7YdDl7Fwa0k@cluster0.oenlwb0.mongodb.net/CustomerReturnRiskAnalyser?retryWrites=true&w=majority&appName=Cluster0", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log("✅ MongoDB connected successfully"))
-.catch((err) => console.error("❌ MongoDB connection error:", err));
+// ✅ MongoDB connection
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("✅ Connected to MongoDB"))
+  .catch((err) => console.error("❌ MongoDB connection error:", err));
+  app.use(cors());
+  app.use(bodyParser.json());
 
-// 🧪 Simple test route
-app.get('/', (req, res) => {
-  res.send('API is running 🚀');
-});
-
-// Start the server
+// ✅ Start server
 app.listen(PORT, () => {
-  console.log(`🚀 Server started at http://localhost:${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
+
