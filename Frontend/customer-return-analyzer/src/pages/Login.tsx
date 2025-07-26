@@ -7,8 +7,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { Shield, TrendingDown } from "lucide-react";
 
+import { adminLogin } from "../lib/api";
+
 const Login = () => {
-  const [email, setEmail] = useState("");
+  const [emailOrUsername, setEmailOrUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -18,32 +20,28 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate authentication
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
-    if (email === "admin@ecommerce.com" && password === "admin123") {
-      localStorage.setItem("isAuthenticated", "true");
-      localStorage.setItem("adminUser", JSON.stringify({
-        name: "Admin User",
-        email: "admin@ecommerce.com",
-        role: "Administrator"
-      }));
-      
+    try {
+      const response = await adminLogin({ emailOrUsername, password });
+      const admin = response.admin; 
       toast({
         title: "Welcome back!",
-        description: "Successfully logged into Return Risk Analyzer",
+        description: `Successfully logged into Return Risk Analyzer ${admin ? `as ${admin.username}` : ''}.`,
       });
-      
       navigate("/dashboard");
-    } else {
+
+    } catch (err: any) {
+      console.error("Login failed:", err);
+
+      const errorMessage = err.message || "An unexpected error occurred."; 
+      
       toast({
-        title: "Authentication failed",
-        description: "Please check your credentials and try again.",
-        variant: "destructive",
+          title: "Authentication failed",
+          description: errorMessage,
+          variant: "destructive",
       });
+    } finally {
+      setIsLoading(false); 
     }
-    
-    setIsLoading(false);
   };
 
   return (
@@ -72,13 +70,14 @@ const Login = () => {
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
+                {/* Updated label and input for emailOrUsername */}
+                <Label htmlFor="emailOrUsername">Email Address or Username</Label>
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="admin@ecommerce.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  id="emailOrUsername"
+                  type="text" 
+                  placeholder="admin@ecommerce.com or username"
+                  value={emailOrUsername} 
+                  onChange={(e) => setEmailOrUsername(e.target.value)}
                   required
                   className="h-11"
                 />
@@ -95,21 +94,21 @@ const Login = () => {
                   className="h-11"
                 />
               </div>
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="w-full h-11 bg-gradient-primary hover:opacity-90 transition-opacity"
                 disabled={isLoading}
               >
                 {isLoading ? "Signing in..." : "Sign In"}
               </Button>
+
+              {/* Demo Credentials */}
+              <div className="mt-6 p-4 bg-muted rounded-lg">
+                <p className="text-sm font-medium text-muted-foreground mb-2">Demo Credentials:</p>
+                <p className="text-xs text-muted-foreground">Email: admin@ecommerce.com</p>
+                <p className="text-xs text-muted-foreground">Password: admin123</p>
+              </div>
             </form>
-            
-            {/* Demo Credentials */}
-            <div className="mt-6 p-4 bg-muted rounded-lg">
-              <p className="text-sm font-medium text-muted-foreground mb-2">Demo Credentials:</p>
-              <p className="text-xs text-muted-foreground">Email: admin@ecommerce.com</p>
-              <p className="text-xs text-muted-foreground">Password: admin123</p>
-            </div>
           </CardContent>
         </Card>
       </div>

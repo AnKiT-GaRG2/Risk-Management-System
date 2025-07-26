@@ -45,9 +45,9 @@ const Analytics = () => {
   ];
 
   const riskDistribution = [
-    { name: "Low Risk", value: 8543, color: "#10B981" },
-    { name: "Medium Risk", value: 4020, color: "#F59E0B" },
-    { name: "High Risk", value: 284, color: "#EF4444" }
+    { name: "Low Risk", value: 8543, color: "#10B981", percentage: 66.5 },
+    { name: "Medium Risk", value: 4020, color: "#F59E0B", percentage: 31.3 },
+    { name: "High Risk", value: 284, color: "#EF4444", percentage: 2.2 }
   ];
 
   const topReasons = [
@@ -186,26 +186,63 @@ const Analytics = () => {
             <CardTitle>Customer Risk Distribution</CardTitle>
             <CardDescription>Breakdown of customers by risk level</CardDescription>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={riskDistribution}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percentage }) => `${name} ${percentage}%`}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {riskDistribution.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
+          <CardContent className="flex flex-col items-center">
+            <div className="w-full" style={{ height: 240 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={riskDistribution}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }) => {
+                      if (percent < 0.05) return null; // Only show label for sections > 5%
+                      const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+                      const x = cx + radius * Math.cos(-midAngle * Math.PI / 180);
+                      const y = cy + radius * Math.sin(-midAngle * Math.PI / 180);
+                      return (
+                        <text 
+                          x={x} 
+                          y={y} 
+                          fill="#fff" 
+                          textAnchor="middle" 
+                          dominantBaseline="central"
+                          fontSize={12}
+                          fontWeight="bold"
+                        >
+                          {`${(percent * 100).toFixed(1)}%`}
+                        </text>
+                      );
+                    }}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {riskDistribution.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(value, name, props) => [`${props.payload.percentage}%`, name]} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="flex justify-center mt-4 gap-6">
+              {riskDistribution.map((entry, index) => (
+                <div key={`legend-${index}`} className="flex items-center">
+                  <div style={{ 
+                    width: 12, 
+                    height: 12, 
+                    backgroundColor: entry.color,
+                    marginRight: 8,
+                    borderRadius: 3 
+                  }} />
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium">{entry.name}</span>
+                    <span className="text-xs text-muted-foreground">{entry.percentage}% ({entry.value.toLocaleString()})</span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
       </div>
