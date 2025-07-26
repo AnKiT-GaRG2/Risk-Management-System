@@ -1,3 +1,26 @@
+const handleGenerate = async () => {
+  try {
+    const response = await fetch('http://localhost:5000/api/reports/generate-pdf', {
+      method: 'GET',
+    });
+
+    if (!response.ok) throw new Error('Failed to generate report');
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'report.pdf';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error('Error generating report:', error);
+  }
+};
+// import { Download } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -291,16 +314,13 @@ const Reports = () => {
                     </div>
 
                     {/* ✅ Button Section - Updated to stay inside card */}
-                    <div className="flex gap-2 mt-auto pt-2">
-                      <Button size="sm" className="flex-1">
+                  <div className="flex gap-2 mt-auto pt-2">
+                      <Button size="sm" className="flex-1" onClick={handleGenerate}>
                         <Download className="h-3 w-3 mr-1" />
                         Generate
                       </Button>
-                      <Button size="sm" variant="outline">
-                        <Calendar className="h-3 w-3 mr-1" />
-                        Schedule
-                      </Button>
-                    </div>
+                  </div>
+
                   </CardContent>
                 </Card>
               );
@@ -309,71 +329,7 @@ const Reports = () => {
         </CardContent>
       </Card>
 
-      {/* Scheduled Reports */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between flex-wrap gap-2">
-          <div>
-            <CardTitle>Scheduled Reports</CardTitle>
-            <CardDescription>
-              Automated report generation and distribution
-            </CardDescription>
-          </div>
-          <Button variant="outline">
-            <Calendar className="h-4 w-4 mr-2" />
-            Add Schedule
-          </Button>
-        </CardHeader>
-
-        <CardContent>
-          <div className="space-y-4">
-            {scheduledReports.map((schedule, index) => (
-              <div
-                key={index}
-                className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg gap-4"
-              >
-                {/* Left section */}
-                <div className="flex items-start gap-4">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <Calendar className="h-5 w-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <h4 className="font-medium">{schedule.name}</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Next run: {schedule.nextRun}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Recipients: {schedule.recipients.join(", ")}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Right section */}
-                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                  <Badge
-                    variant={
-                      schedule.status === "active" ? "default" : "secondary"
-                    }
-                    className={
-                      schedule.status === "active"
-                        ? "bg-green-100 text-green-800"
-                        : ""
-                    }
-                  >
-                    {schedule.status}
-                  </Badge>
-                  <Button variant="ghost" size="sm">
-                    Edit
-                  </Button>
-                  <Button variant="ghost" size="sm">
-                    Delete
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
+     
       {/* Recent Downloads */}
       <Card>
         <CardHeader>
@@ -431,7 +387,7 @@ const Reports = () => {
                 </div>
                 <div className="flex items-center gap-3">
                   <Badge variant="outline">{download.type}</Badge>
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" onClick={handleGenerate}>
                     <Download className="h-4 w-4" />
                   </Button>
                 </div>

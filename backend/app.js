@@ -10,6 +10,8 @@ import { ApiError } from './utils/ApiError.js';
 
 import authRoutes from './routes/authRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
+import reportRoutes from './routes/reportRoutes.js';
+
 // import customerRoutes from './routes/customerRoutes.js';
 // import riskRoutes from './routes/riskRoutes.js';
 
@@ -43,6 +45,7 @@ app.use(express.urlencoded({ extended: true, limit: '16kb' }));
 app.use(cookieParser());
 
 app.use(morganMiddleware);
+app.use('/api/reports', reportRoutes); // 👈 add this line
 
 // --- Routes ---
 
@@ -56,6 +59,9 @@ app.use('/api/dashboard', dashboardRoutes);
 app.get('/', (req, res) => {
     res.send('API is running...');
 });
+
+
+
 
 // Error handling middleware
 app.use(errorMiddleware);
