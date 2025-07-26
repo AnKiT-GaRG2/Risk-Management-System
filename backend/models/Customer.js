@@ -1,4 +1,4 @@
-
+// backend/models/Customer.js
 import mongoose from 'mongoose';
 
 const CustomerSchema = new mongoose.Schema(
@@ -16,7 +16,7 @@ const CustomerSchema = new mongoose.Schema(
     },
     email: {
       type: String,
-      required: [true, 'Email is required'], 
+      required: [true, 'Email is required'],
       unique: true,
       trim: true,
       lowercase: true,
@@ -28,17 +28,23 @@ const CustomerSchema = new mongoose.Schema(
     },
     totalOrders: {
       type: Number,
-      required: [true, 'Total orders is required'], 
+      required: [true, 'Total orders is required'],
       default: 0,
-      min: [0, 'Total orders cannot be negative'], 
+      min: [0, 'Total orders cannot be negative'],
     },
     totalReturns: {
       type: Number,
-      required: [true, 'Total returns is required'], 
+      required: [true, 'Total returns is required'],
       default: 0,
-      min: [0, 'Total returns cannot be negative'], 
+      min: [0, 'Total returns cannot be negative'],
     },
-    returnRate: { // Calculated field, automatically updated via pre-save hook
+    totalSpent: {
+      type: Number,
+      required: [true, 'Total spent is required'],
+      default: 0.0,
+      min: [0, 'Total spent cannot be negative'],
+    },
+    returnRate: { 
       type: Number,
       default: 0.0,
       min: [0, 'Return rate cannot be negative'],
@@ -48,11 +54,10 @@ const CustomerSchema = new mongoose.Schema(
       type: Date,
       default: null, 
     },
-    // Reference to the calculated risk score for this customer
     riskAnalysis: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'ReturnRisk', // Refers to the ReturnRisk model
-      default: null, 
+      ref: 'ReturnRisk', 
+      default: null,
     },
   },
   {
@@ -60,24 +65,25 @@ const CustomerSchema = new mongoose.Schema(
   }
 );
 
+// Pre-save hook to ensure totalReturns doesn't exceed totalOrders
+// and to automatically calculate and update returnRate
 CustomerSchema.pre('save', function (next) {
   if (this.totalReturns > this.totalOrders) {
-    this.totalReturns = this.totalOrders; // Cap returns at total orders
+    this.totalReturns = this.totalOrders; 
   }
   // Calculate returnRate
   if (this.totalOrders > 0) {
     this.returnRate = (this.totalReturns / this.totalOrders) * 100;
   } else {
-    this.returnRate = 0; // If no orders, return rate is 0
+    this.returnRate = 0; 
   }
   next();
 });
 
-
-// These lines create indexes on the customerId and email fields.
+// --- Add Indexes Here ---
 CustomerSchema.index({ customerId: 1 });
 CustomerSchema.index({ email: 1 });
-
+// --- End Indexes ---
 
 const Customer = mongoose.model('Customer', CustomerSchema);
 

@@ -11,6 +11,8 @@ import { ApiError } from './utils/ApiError.js';
 import authRoutes from './routes/authRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import customerRoutes from './routes/customerRoutes.js';
+import reportRoutes from './routes/reportRoutes.js'; // Add this import
+
 
 dotenv.config();
 
@@ -41,7 +43,9 @@ app.use(morganMiddleware);
 app.use('/api/reports', reportRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+
 app.use('/api/customers', customerRoutes);
+
 // app.use('/api/risk', riskRoutes); // Risk analysis routes
 app.get('/', (req, res) => {
     res.send('API is running...');
