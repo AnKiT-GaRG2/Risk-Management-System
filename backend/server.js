@@ -4,6 +4,9 @@ import dotenv from 'dotenv';
 import logger from './utils/winston.js'; 
 dotenv.config();
 
+import reportRoutes from './routes/reports.js';
+app.use('/api', reportRoutes); 
+
 
 
 const PORT = process.env.PORT || 5000; 

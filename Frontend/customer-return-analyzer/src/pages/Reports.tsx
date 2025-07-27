@@ -1,25 +1,30 @@
-const handleGenerate = async () => {
+const handleDownload = async (reportId: string) => {
   try {
-    const response = await fetch('http://localhost:5000/api/reports/generate-pdf', {
-      method: 'GET',
+    const response = await fetch(`/api/generate-report?reportId=${reportId}`, {
+      method: "GET",
     });
 
-    if (!response.ok) throw new Error('Failed to generate report');
+    if (!response.ok) {
+      throw new Error("Failed to generate report");
+    }
 
     const blob = await response.blob();
     const url = window.URL.createObjectURL(blob);
 
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = 'report.pdf';
+    a.download = `${reportId}-report.csv`; // file name
     document.body.appendChild(a);
     a.click();
-    a.remove();
+    document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
   } catch (error) {
-    console.error('Error generating report:', error);
+    console.error("Download failed:", error);
   }
 };
+
+
+
 // import { Download } from "lucide-react";
 import {
   Card,
@@ -115,26 +120,26 @@ const Reports = () => {
     },
   ];
 
-  const scheduledReports = [
-    {
-      name: "Daily Risk Alerts",
-      nextRun: "2024-01-16 09:00",
-      recipients: ["admin@ecommerce.com", "risk@ecommerce.com"],
-      status: "active",
-    },
-    {
-      name: "Weekly Summary",
-      nextRun: "2024-01-22 08:00",
-      recipients: ["admin@ecommerce.com", "management@ecommerce.com"],
-      status: "active",
-    },
-    {
-      name: "Monthly Deep Dive",
-      nextRun: "2024-02-01 10:00",
-      recipients: ["admin@ecommerce.com", "analytics@ecommerce.com"],
-      status: "paused",
-    },
-  ];
+  // const scheduledReports = [
+  //   {
+  //     name: "Daily Risk Alerts",
+  //     nextRun: "2024-01-16 09:00",
+  //     recipients: ["admin@ecommerce.com", "risk@ecommerce.com"],
+  //     status: "active",
+  //   },
+  //   {
+  //     name: "Weekly Summary",
+  //     nextRun: "2024-01-22 08:00",
+  //     recipients: ["admin@ecommerce.com", "management@ecommerce.com"],
+  //     status: "active",
+  //   },
+  //   {
+  //     name: "Monthly Deep Dive",
+  //     nextRun: "2024-02-01 10:00",
+  //     recipients: ["admin@ecommerce.com", "analytics@ecommerce.com"],
+  //     status: "paused",
+  //   },
+  // ];
 
   const getFrequencyBadge = (frequency: string) => {
     switch (frequency) {
@@ -315,7 +320,7 @@ const Reports = () => {
 
                     {/* ✅ Button Section - Updated to stay inside card */}
                   <div className="flex gap-2 mt-auto pt-2">
-                      <Button size="sm" className="flex-1" onClick={handleGenerate}>
+                      <Button size="sm" className="flex-1"onClick={() => handleDownload(report.id)}>
                         <Download className="h-3 w-3 mr-1" />
                         Generate
                       </Button>
@@ -387,7 +392,7 @@ const Reports = () => {
                 </div>
                 <div className="flex items-center gap-3">
                   <Badge variant="outline">{download.type}</Badge>
-                  <Button variant="ghost" size="sm" onClick={handleGenerate}>
+                  <Button variant="ghost" size="sm">
                     <Download className="h-4 w-4" />
                   </Button>
                 </div>
