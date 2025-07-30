@@ -2,13 +2,15 @@ import express from "express";
 import { writeFileSync } from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { protect, authorize } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-router.get("/generate-pdf", (req, res) => {
+// Generate PDF report (admin only)
+router.get("/generate-pdf", protect, authorize(['admin', 'superadmin']), (req, res) => {
   const csvData = `Name,Email,Score\nJohn,john@example.com,95\nJane,jane@example.com,89`;
 
   const filePath = path.join(__dirname, "../temp/report.csv");
