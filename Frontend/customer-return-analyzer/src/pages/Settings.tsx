@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import useDarkMode from "@/hooks/use-dark-mode";
+// import useDarkMode from "@/hooks/use-dark-mode";
 
 import { 
   Settings as SettingsIcon, 
@@ -45,7 +45,7 @@ const Settings = () => {
     alertFrequency: "immediate"
   });
 
-  const { isDark, toggleDarkMode } = useDarkMode();
+  // const { isDark, toggleDarkMode } = useDarkMode();
   const { toast } = useToast();
 
   const handleSaveSettings = () => {
@@ -73,12 +73,6 @@ const Settings = () => {
             <h2 className="text-2xl font-bold text-foreground">System Settings</h2>
             <p className="text-muted-foreground">Configure risk analysis parameters and system preferences</p>
           </div>
-        </div>
-        {/* Dark Mode Toggle */}
-        <div className="flex items-center gap-2">
-          <Sun className="h-5 w-5 text-yellow-400" />
-          <Switch checked={isDark} onCheckedChange={toggleDarkMode} />
-          <Moon className="h-5 w-5 text-blue-500" />
         </div>
       </div>
 

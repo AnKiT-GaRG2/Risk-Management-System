@@ -69,5 +69,14 @@ export const registerAdmin = async (data) => api.post('/auth/register', data);
 //api call for fetching the dashboard data
 export const getDashboardData = async () => api.get('/dashboard');
 
+export const getCustomers = async (params) => api.get('/customers', { params }); // Removed type annotation
+
+/**
+ * Fetches a single customer's data by ID.
+ * @param {string} id - The Mongoose _id of the customer.
+ * @returns {Promise<object>} - A single customer object.
+ */
+export const getCustomerById = async (id) => api.get(`/customers/${id}`); // Removed type annotation
+
 
 export default api;

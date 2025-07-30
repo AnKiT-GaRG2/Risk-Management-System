@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { NavLink, useNavigate, useLocation, Outlet } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import ThemeToggle from "@/components/ThemeToggle";
+
 import {
   LayoutDashboard,
   Users,
@@ -251,10 +253,14 @@ const AdminLayout = () => {
                 Monitor and manage customer return risks
               </p>
             </div>
-            <div className="text-right">
-              <p className="text-sm text-muted-foreground">Welcome back,</p>
-              <p className="font-medium text-foreground">{adminUser.name}</p>
-            </div>
+            <div className="flex items-center gap-4">
+  <div className="text-right">
+    <p className="text-sm text-muted-foreground">Welcome back,</p>
+    <p className="font-medium text-foreground">{adminUser.name}</p>
+  </div>
+  <ThemeToggle />
+</div>
+
           </div>
         </header>
 

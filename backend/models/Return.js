@@ -1,49 +1,45 @@
-
+// backend/models/Return.js
 import mongoose from 'mongoose';
 
 const ReturnSchema = new mongoose.Schema(
   {
-    returnId: {
+    returnId: { // Unique ID for each return (e.g., RET001)
       type: String,
       required: true,
       unique: true,
       trim: true,
     },
-    customer: { 
+    customer: { // Reference to the Customer who made the return
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Customer',
       required: true,
     },
-    customerId: {
+    customerId: { // Store customerId for easier lookup/display without populate
       type: String,
       required: true,
-      ref: 'Customer', 
+      ref: 'Customer', // Can also be a ref, but storing string is fine for display
     },
-    customerName: { 
+    customerName: { // Store customer name for easier display
       type: String,
       required: true,
     },
-    product: { 
+    product: { // Name of the product returned
       type: String,
       required: true,
       trim: true,
     },
-    reason: { 
+    reason: { // Reason for the return
       type: String,
       required: true,
       enum: ['Defective item', 'Wrong size/color', 'Not as described', 'Changed mind', 'Damaged in transit', 'Performance issues', 'Other'],
     },
-    returnDate: { 
+    returnDate: { // Date of the return
       type: Date,
       default: Date.now,
     },
-    // You might add more fields like:
-    // quantity: { type: Number, default: 1 },
-    // refundAmount: { type: Number },
-    // status: { type: String, enum: ['Pending', 'Approved', 'Rejected'], default: 'Pending' }
   },
   {
-    timestamps: true, 
+    timestamps: true, // Adds createdAt and updatedAt
   }
 );
 
