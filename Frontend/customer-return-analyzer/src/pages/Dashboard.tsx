@@ -1,4 +1,4 @@
-import ThemeToggle from "@/components/ThemeToggle";
+import ThemeToggle from "@/components/ThemeToggle"; // Assuming ThemeToggle is correctly imported and used elsewhere if needed
 import { useState, useEffect } from "react";
 import {
   Card,
@@ -18,10 +18,11 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Eye,
-  Filter,
+  Filter, // Filter icon is used in the Customers page, not directly here, but kept for consistency
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getDashboardData } from "../lib/api";
+import { useNavigate } from "react-router-dom"; // Import useNavigate hook
 
 
 interface Stat {
@@ -29,7 +30,7 @@ interface Stat {
   value: string;
   change: string;
   trend: 'up' | 'down';
-  icon: string; 
+  icon: string;
   color: string;
 }
 
@@ -66,7 +67,7 @@ interface ActualDashboardPayload {
 
 interface ApiResponseData {
   statusCode: number;
-  data: ActualDashboardPayload; 
+  data: ActualDashboardPayload;
   message: string;
   success: boolean;
 }
@@ -79,21 +80,32 @@ const iconMap: { [key: string]: React.ElementType } = {
 };
 
 const Dashboard = () => {
+  const navigate = useNavigate(); // Initialize useNavigate hook
+
   const { data: apiResponse, isLoading, isError, error } = useQuery<ApiResponseData, Error>({
     queryKey: ['dashboardData'],
     queryFn: getDashboardData,
-    staleTime: 5 * 60 * 1000, 
-    gcTime: 10 * 60 * 1000, 
-    retry: 1, 
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 1,
   });
-
- 
 
   const getRiskBadge = (score: number) => {
     if (score >= 70) return { variant: "destructive" as const, label: "High Risk" };
     if (score >= 40) return { variant: "secondary" as const, label: "Medium Risk" };
     return { variant: "default" as const, label: "Low Risk" };
   };
+
+  // Handle navigation for "View All High Risk Customers"
+  const handleViewAllHighRiskCustomers = () => {
+    navigate('/customers?riskLevel=High'); // Navigate to Customers page with 'High' riskLevel filter
+  };
+
+  // Handle navigation for "View All Recent Returns"
+  const handleViewAllRecentReturns = () => {
+    navigate('/returns'); // Navigate to Returns page (assuming you'll build this next)
+  };
+
 
   if (isLoading) {
     return (
@@ -114,20 +126,20 @@ const Dashboard = () => {
     );
   }
 
-  const { 
-    stats = [], 
-    highRiskCustomers = [], 
-    recentReturns = [], 
-    riskDistribution = [] 
-  } = apiResponse?.data || {}; 
+  const {
+    stats = [],
+    highRiskCustomers = [],
+    recentReturns = [],
+    riskDistribution = []
+  } = apiResponse?.data || {};
 
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat) => {
-          const Icon = iconMap[stat.icon]; // Get the LucideIcon component
-          if (!Icon) return null; // Handle cases where icon might not be mapped
+          const Icon = iconMap[stat.icon];
+          if (!Icon) return null;
           return (
             <Card key={stat.title} className="relative overflow-hidden">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -167,7 +179,7 @@ const Dashboard = () => {
               <CardTitle className="text-lg font-semibold">High Risk Customers</CardTitle>
               <CardDescription>Customers with risk score above 70</CardDescription>
             </div>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={handleViewAllHighRiskCustomers}> {/* Make button actionable */}
               <Filter className="h-4 w-4 mr-2" />
               View All
             </Button>
@@ -212,7 +224,7 @@ const Dashboard = () => {
               <CardTitle className="text-lg font-semibold">Recent Returns</CardTitle>
               <CardDescription>Latest return requests and their risk assessment</CardDescription>
             </div>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={handleViewAllRecentReturns}> {/* Make button actionable */}
               <Eye className="h-4 w-4 mr-2" />
               View All
             </Button>
