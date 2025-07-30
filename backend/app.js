@@ -11,9 +11,8 @@ import { ApiError } from './utils/ApiError.js';
 import authRoutes from './routes/authRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import analyticsRoutes from './routes/analyticsRoutes.js';
-// import customerRoutes from './routes/customerRoutes.js';
-// import riskRoutes from './routes/riskRoutes.js';
-
+import customerRoutes from './routes/customerRoutes.js';
+import reportRoutes from './routes/reportRoutes.js';
 
 dotenv.config();
 
@@ -48,12 +47,12 @@ app.use(morganMiddleware);
 // --- Routes ---
 
 // Define your API routes
+
 app.use('/api/auth', authRoutes); 
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/analytics', analyticsRoutes);
-// app.use('/api/customers', customerRoutes); 
-// app.use('/api/risk', riskRoutes); // Risk analysis routes
-
+app.use('/api/reports', reportRoutes);
+app.use('/api/customers', customerRoutes);
 
 
 console.log("Routes registered successfully");
