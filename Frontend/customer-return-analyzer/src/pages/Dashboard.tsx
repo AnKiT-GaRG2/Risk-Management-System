@@ -1,5 +1,5 @@
 import ThemeToggle from "@/components/ThemeToggle"; // Assuming ThemeToggle is correctly imported and used elsewhere if needed
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -18,12 +18,19 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Eye,
-  Filter, // Filter icon is used in the Customers page, not directly here, but kept for consistency
+  Filter,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getDashboardData } from "../lib/api";
-import { useNavigate } from "react-router-dom"; // Import useNavigate hook
-
+import { useNavigate } from "react-router-dom";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader as DialogHeaderUI,
+  DialogTitle as DialogTitleUI,
+  DialogDescription as DialogDescriptionUI,
+  DialogFooter as DialogFooterUI,
+} from "@/components/ui/dialog";
 
 interface Stat {
   title: string;
@@ -80,7 +87,11 @@ const iconMap: { [key: string]: React.ElementType } = {
 };
 
 const Dashboard = () => {
-  const navigate = useNavigate(); // Initialize useNavigate hook
+  const navigate = useNavigate();
+
+  // Dialog state for high risk customer details
+  const [selectedCustomer, setSelectedCustomer] = useState<CustomerData | null>(null);
+  const [selectedReturn, setSelectedReturn] = useState<RecentReturn | null>(null);
 
   const { data: apiResponse, isLoading, isError, error } = useQuery<ApiResponseData, Error>({
     queryKey: ['dashboardData'],
@@ -98,14 +109,13 @@ const Dashboard = () => {
 
   // Handle navigation for "View All High Risk Customers"
   const handleViewAllHighRiskCustomers = () => {
-    navigate('/customers?riskLevel=High'); // Navigate to Customers page with 'High' riskLevel filter
+    navigate('/customers?riskLevel=High');
   };
 
   // Handle navigation for "View All Recent Returns"
   const handleViewAllRecentReturns = () => {
-    navigate('/returns'); // Navigate to Returns page (assuming you'll build this next)
+    navigate('/returns');
   };
-
 
   if (isLoading) {
     return (
@@ -179,7 +189,7 @@ const Dashboard = () => {
               <CardTitle className="text-lg font-semibold">High Risk Customers</CardTitle>
               <CardDescription>Customers with risk score above 70</CardDescription>
             </div>
-            <Button variant="outline" size="sm" onClick={handleViewAllHighRiskCustomers}> {/* Make button actionable */}
+            <Button variant="outline" size="sm" onClick={handleViewAllHighRiskCustomers}>
               <Filter className="h-4 w-4 mr-2" />
               View All
             </Button>
@@ -205,7 +215,12 @@ const Dashboard = () => {
                       </div>
                       <Progress value={customer.riskScore} className="mt-2 h-2" />
                     </div>
-                    <Button variant="ghost" size="sm">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSelectedCustomer(customer)}
+                      aria-label="View customer details"
+                    >
                       <Eye className="h-4 w-4" />
                     </Button>
                   </div>
@@ -224,7 +239,7 @@ const Dashboard = () => {
               <CardTitle className="text-lg font-semibold">Recent Returns</CardTitle>
               <CardDescription>Latest return requests and their risk assessment</CardDescription>
             </div>
-            <Button variant="outline" size="sm" onClick={handleViewAllRecentReturns}> {/* Make button actionable */}
+            <Button variant="outline" size="sm" onClick={handleViewAllRecentReturns}>
               <Eye className="h-4 w-4 mr-2" />
               View All
             </Button>
@@ -249,7 +264,12 @@ const Dashboard = () => {
                         Reason: {return_item.reason} • {return_item.time}
                       </p>
                     </div>
-                    <Button variant="ghost" size="sm">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSelectedReturn(return_item)}
+                      aria-label="View return details"
+                    >
                       <Eye className="h-4 w-4" />
                     </Button>
                   </div>
@@ -280,6 +300,112 @@ const Dashboard = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Dialog for High Risk Customer */}
+      <Dialog open={!!selectedCustomer} onOpenChange={() => setSelectedCustomer(null)}>
+        <DialogContent className="max-w-md rounded-2xl shadow-2xl border-0 bg-gradient-to-br from-white to-slate-100">
+          <DialogHeaderUI>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="flex-shrink-0">
+                <Users className="h-8 w-8 text-red-500 drop-shadow" />
+              </div>
+              <div>
+                <DialogTitleUI className="text-xl font-bold">Customer Details</DialogTitleUI>
+                <DialogDescriptionUI className="text-sm text-muted-foreground">
+                  Detailed information about the selected high risk customer.
+                </DialogDescriptionUI>
+              </div>
+            </div>
+          </DialogHeaderUI>
+          {selectedCustomer && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-lg">{selectedCustomer.name}</span>
+                <Badge {...getRiskBadge(selectedCustomer.riskScore)} className="text-base px-3 py-1">
+                  {getRiskBadge(selectedCustomer.riskScore).label}
+                </Badge>
+              </div>
+              <div className="flex flex-col gap-1 text-sm">
+                <div>
+                  <span className="font-semibold">Risk Score:</span>{" "}
+                  <span className="text-red-600 font-bold">{selectedCustomer.riskScore}</span>
+                </div>
+                <div>
+                  <span className="font-semibold">Returns:</span> {selectedCustomer.returns}
+                </div>
+                <div>
+                  <span className="font-semibold">Total Orders:</span> {selectedCustomer.totalOrders}
+                </div>
+                <div>
+                  <span className="font-semibold">Return Rate:</span>{" "}
+                  {selectedCustomer.totalOrders > 0
+                    ? Math.round((selectedCustomer.returns / selectedCustomer.totalOrders) * 100)
+                    : 0}
+                  %
+                </div>
+              </div>
+              <div className="py-2">
+                <Progress value={selectedCustomer.riskScore} className="h-3 rounded-full bg-slate-200" />
+              </div>
+              <div className="flex justify-end">
+                <Button variant="outline" onClick={() => setSelectedCustomer(null)}>
+                  Close
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog for Recent Return */}
+      <Dialog open={!!selectedReturn} onOpenChange={() => setSelectedReturn(null)}>
+        <DialogContent className="max-w-md rounded-2xl shadow-2xl border-0 bg-gradient-to-br from-white to-slate-100">
+          <DialogHeaderUI>
+            <div className="flex items-center gap-3 mb-2">
+              <AlertTriangle className="h-8 w-8 text-yellow-500 drop-shadow" />
+              <div>
+                <DialogTitleUI className="text-xl font-bold">Return Details</DialogTitleUI>
+                <DialogDescriptionUI className="text-sm text-muted-foreground">
+                  Detailed information about the selected return.
+                </DialogDescriptionUI>
+              </div>
+            </div>
+          </DialogHeaderUI>
+          {selectedReturn && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-lg">{selectedReturn.customer}</span>
+                <Badge {...getRiskBadge(selectedReturn.riskScore)} className="text-base px-3 py-1">
+                  {getRiskBadge(selectedReturn.riskScore).label}
+                </Badge>
+              </div>
+              <div className="flex flex-col gap-1 text-sm">
+                <div>
+                  <span className="font-semibold">Product:</span> {selectedReturn.product}
+                </div>
+                <div>
+                  <span className="font-semibold">Reason:</span> {selectedReturn.reason}
+                </div>
+                <div>
+                  <span className="font-semibold">Risk Score:</span>{" "}
+                  <span className="text-yellow-600 font-bold">{selectedReturn.riskScore}</span>
+                </div>
+                <div>
+                  <span className="font-semibold">Time:</span> {selectedReturn.time}
+                </div>
+              </div>
+              <div className="py-2">
+                <Progress value={selectedReturn.riskScore} className="h-3 rounded-full bg-slate-200" />
+              </div>
+              <div className="flex justify-end">
+                <Button variant="outline" onClick={() => setSelectedReturn(null)}>
+                  Close
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
