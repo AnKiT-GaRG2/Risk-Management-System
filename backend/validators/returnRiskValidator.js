@@ -1,16 +1,13 @@
 import Joi from 'joi';
-import JoiObjectId from 'joi-objectid'; // For validating MongoDB ObjectIDs
-
-// Extend Joi with joi-objectid for Mongoose ObjectId validation
-const myJoi = Joi.extend(JoiObjectId);
 
 // Joi schema for validating the customer ID in risk calculation requests
-// This assumes the customerId in the URL param is a MongoDB ObjectId
-const calculateRiskParamsSchema = myJoi.object({
-    customerId: myJoi.objectId()
+// Using regex pattern for MongoDB ObjectId validation
+const calculateRiskParamsSchema = Joi.object({
+    customerId: Joi.string()
+        .pattern(/^[0-9a-fA-F]{24}$/)
         .required()
         .messages({
-            'objectId.invalid': 'Invalid Customer ID format',
+            'string.pattern.base': 'Invalid Customer ID format - must be a valid MongoDB ObjectId',
             'any.required': 'Customer ID is required in URL'
         })
 });

@@ -1,10 +1,12 @@
 import express from 'express';
 import { Parser } from 'json2csv';
-import Customer from '../models/Customer.js'; // Adjust path as needed
+import Customer from '../models/Customer.js';
+import { protect, authorize } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-router.get('/generate-customer-risk-summary', async (req, res) => {
+// Generate customer risk summary CSV (admin only)
+router.get('/generate-customer-risk-summary', protect, authorize(['admin', 'superadmin']), async (req, res) => {
   try {
     const customers = await Customer.find();
 
