@@ -12,7 +12,7 @@ import authRoutes from './routes/authRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import customerRoutes from './routes/customerRoutes.js';
 import reportRoutes from './routes/reportRoutes.js'; // Add this import
-
+import analyticsRoutes from './routes/analyticsRoutes.js';
 
 dotenv.config();
 
@@ -43,7 +43,7 @@ app.use(morganMiddleware);
 app.use('/api/reports', reportRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/dashboard', dashboardRoutes);
-
+app.use('/api/analytics', analyticsRoutes);
 app.use('/api/customers', customerRoutes);
 
 // app.use('/api/risk', riskRoutes); // Risk analysis routes
