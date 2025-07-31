@@ -1,28 +1,28 @@
 const handleDownload = async (reportId: string) => {
   try {
-    const response = await fetch(`/api/generate-report?reportId=${reportId}`, {
-      method: "GET",
+    // Adjust /api/reports/generate-report if your backend route changed
+    const response = await fetch(`http://localhost:5000/api/reports/generate-report?reportId=${reportId}`, {
+      method: 'GET',
     });
-
+    
     if (!response.ok) {
-      throw new Error("Failed to generate report");
+      throw new Error('Failed to generate report');
     }
-
+    
     const blob = await response.blob();
     const url = window.URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
+    
+    const a = document.createElement('a');
     a.href = url;
-    a.download = `${reportId}-report.csv`; // file name
+    a.download = `${reportId}-report.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
   } catch (error) {
-    console.error("Download failed:", error);
+    console.error('Download failed:', error);
   }
 };
-
 
 
 // import { Download } from "lucide-react";
@@ -330,74 +330,6 @@ const Reports = () => {
                 </Card>
               );
             })}
-          </div>
-        </CardContent>
-      </Card>
-
-     
-      {/* Recent Downloads */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Downloads</CardTitle>
-          <CardDescription>
-            Latest generated reports and downloads
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {[
-              {
-                name: "High Risk Customer Alerts",
-                date: "2024-01-15 14:30",
-                size: "2.3 MB",
-                type: "PDF",
-              },
-              {
-                name: "Weekly Risk Summary",
-                date: "2024-01-15 09:00",
-                size: "4.1 MB",
-                type: "Excel",
-              },
-              {
-                name: "Return Analysis Report",
-                date: "2024-01-14 16:45",
-                size: "1.8 MB",
-                type: "PDF",
-              },
-              {
-                name: "Category Performance",
-                date: "2024-01-14 11:20",
-                size: "3.2 MB",
-                type: "Excel",
-              },
-              {
-                name: "Daily Risk Alerts",
-                date: "2024-01-14 09:00",
-                size: "856 KB",
-                type: "PDF",
-              },
-            ].map((download, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between p-3 border rounded-lg"
-              >
-                <div className="flex items-center gap-3">
-                  <FileText className="h-5 w-5 text-muted-foreground" />
-                  <div>
-                    <p className="font-medium">{download.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {download.date} • {download.size}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Badge variant="outline">{download.type}</Badge>
-                  <Button variant="ghost" size="sm">
-                    <Download className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
           </div>
         </CardContent>
       </Card>

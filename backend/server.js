@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import logger from './utils/winston.js'; 
 dotenv.config();
 
-import reportRoutes from './routes/reports.js';
+import reportRoutes from './routes/reportRoutes.js';
 app.use('/api', reportRoutes); 
 
 

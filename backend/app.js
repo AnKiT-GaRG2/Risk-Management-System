@@ -13,7 +13,6 @@ import dashboardRoutes from './routes/dashboardRoutes.js';
 import customerRoutes from './routes/customerRoutes.js';
 import reportRoutes from './routes/reportRoutes.js'; // Add this import
 
-
 dotenv.config();
 
 const app = express();
