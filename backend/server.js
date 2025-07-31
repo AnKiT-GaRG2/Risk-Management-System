@@ -1,25 +1,8 @@
-import express from "express";
-import dotenv from "dotenv";
-import cors from "cors";
-import cookieParser from "cookie-parser";
-
-import connectDB from "./db/connection.js";
-import authRoutes from "./routes/authRoutes.js";
-import returnRoutes from "./routes/returnRoutes.js";
-
-dotenv.config(); // Load .env variables
-
-const app = express();
-
-// Middleware
-app.use(cors({ origin: "http://localhost:8080", credentials: true }));
-app.use(express.json());
-app.use(cookieParser());
-
-// Routes
-app.use("/auth", authRoutes);
-app.use("/api/returns", returnRoutes);
-
+import app from './app.js'; 
+import connectDB from './db/connection.js'; 
+import dotenv from 'dotenv';
+import logger from './utils/winston.js'; 
+dotenv.config();
 
 import reportRoutes from './routes/reports.js';
 app.use('/api', reportRoutes); 
@@ -28,15 +11,15 @@ app.use('/api', reportRoutes);
 
 const PORT = process.env.PORT || 5000; 
 const startServer = async () => {
-  try {
-    await connectDB(); // Connect to MongoDB
-    app.listen(PORT, () => {
-      console.log(`✅ Server running on port ${PORT}`);
-    });
-  } catch (error) {
-    console.error("❌ Failed to start server:", error);
-    process.exit(1);
-  }
+    try {
+        await connectDB();
+        app.listen(PORT, () => {
+            logger.info(`Server running on port ${PORT}`);
+        });
+    } catch (error) {
+        logger.error(`Failed to start server: ${error.message}`);
+        process.exit(1);
+    }
 };
 
 startServer();
