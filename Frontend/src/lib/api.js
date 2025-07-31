@@ -46,11 +46,37 @@ export const refreshAccessToken = async () => {
 };
 export const logout = async () => api.post('/auth/logout', {});
 
-
+export const getAnalyticsData = async (period = '12months') => {
+  try {
+    // Log the request being made
+    console.log(`Fetching analytics data with period: ${period}`);
+    
+    // Make the API call
+    const response = await api.get(`/analytics?period=${period}`);
+    
+    // Log success
+    console.log('Analytics API call successful:', response);
+    
+    return response; // response interceptor already returns response.data
+  } catch (error) {
+    // Log detailed error information
+    console.error("Analytics API call failed:", error);
+    throw error;
+  }
+};
 export const registerAdmin = async (data) => api.post('/auth/register', data);
 
 //api call for fetching the dashboard data
 export const getDashboardData = async () => api.get('/dashboard');
+
+export const getCustomers = async (params) => api.get('/customers', { params }); // Removed type annotation
+
+/**
+ * Fetches a single customer's data by ID.
+ * @param {string} id - The Mongoose _id of the customer.
+ * @returns {Promise<object>} - A single customer object.
+ */
+export const getCustomerById = async (id) => api.get(`/customers/${id}`); // Removed type annotation
 
 
 export default api;

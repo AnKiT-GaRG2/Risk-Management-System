@@ -20,9 +20,13 @@ app.use(cookieParser());
 app.use("/auth", authRoutes);
 app.use("/api/returns", returnRoutes);
 
-// Server setup
-const PORT = process.env.PORT || 5000;
 
+import reportRoutes from './routes/reports.js';
+app.use('/api', reportRoutes); 
+
+
+
+const PORT = process.env.PORT || 5000; 
 const startServer = async () => {
   try {
     await connectDB(); // Connect to MongoDB
