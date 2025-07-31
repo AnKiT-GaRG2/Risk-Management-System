@@ -10,8 +10,9 @@ import { ApiError } from './utils/ApiError.js';
 
 import authRoutes from './routes/authRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
+import returnRoutes from './routes/returnRoutes.js';
 import customerRoutes from './routes/customerRoutes.js';
-import reportRoutes from './routes/reportRoutes.js'; // Add this import
+import reportRoutes from './routes/reportRoutes.js';
 import analyticsRoutes from './routes/analyticsRoutes.js';
 import riskRoutes from './routes/riskRoutes.js';
 
@@ -42,12 +43,14 @@ app.use(morganMiddleware);
 
 // --- Routes ---
 console.log("Mounting routes...");
-app.use('/api/reports', reportRoutes);
-console.log("Reports routes mounted");
 app.use('/api/auth', authRoutes);
 console.log("Auth routes mounted");
 app.use('/api/dashboard', dashboardRoutes);
 console.log("Dashboard routes mounted");
+app.use('/api/returns', returnRoutes);
+console.log("Returns routes mounted");
+app.use('/api/reports', reportRoutes);
+console.log("Reports routes mounted");
 app.use('/api/analytics', analyticsRoutes);
 console.log("Analytics routes mounted");
 app.use('/api/customers', customerRoutes);
@@ -55,7 +58,6 @@ console.log("Customer routes mounted");
 app.use('/api/risk', riskRoutes);
 console.log("Risk routes mounted");
 
-// app.use('/api/risk', riskRoutes); // Risk analysis routes
 app.get('/', (req, res) => {
     res.send('API is running...');
 });

@@ -1,0 +1,29 @@
+{
+  "name": "risk-management-system",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AnKiT-GaRG2/Risk-Management-System.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AnKiT-GaRG2/Risk-Management-System/issues"
+  },
+  "homepage": "https://github.com/AnKiT-GaRG2/Risk-Management-System#readme",
+  "description": "",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "mongoose": "^8.16.4"
+  },
+  "devDependencies": {
+    "@types/axios": "^0.9.36",
+    "nodemon": "^3.1.10"
+  }
+}
