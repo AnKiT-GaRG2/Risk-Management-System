@@ -78,5 +78,9 @@ export const getCustomers = async (params) => api.get('/customers', { params });
  */
 export const getCustomerById = async (id) => api.get(`/customers/${id}`); // Removed type annotation
 
+export const getReturnStats = async () => api.get('/returns/stats');
+export const getReturns = async (params) => api.get('/returns', { params });
+export const getReturnById = async (id) => api.get(`/returns/${id}`);
+
 
 export default api;
