@@ -14,7 +14,7 @@ import customerRoutes from './routes/customerRoutes.js';
 import reportRoutes from './routes/reportRoutes.js'; // Add this import
 import analyticsRoutes from './routes/analyticsRoutes.js';
 import riskRoutes from './routes/riskRoutes.js';
-import returnRoutes from './routes/returnRoutes.js';
+import returnRoutes from './routes/returns.js';
 
 dotenv.config();
 
@@ -41,6 +41,17 @@ app.use(express.urlencoded({ extended: true, limit: '16kb' }));
 app.use(cookieParser());
 app.use(morganMiddleware);
 
+// Add request logging middleware before routes
+app.use((req, res, next) => {
+  if (req.url.includes('/approve')) {
+    console.log(`🌐 INCOMING REQUEST: ${req.method} ${req.url}`);
+    console.log(`🌐 Headers:`, req.headers);
+    console.log(`🌐 Body:`, req.body);
+    console.log(`🌐 Cookies:`, req.cookies);
+  }
+  next();
+});
+
 // --- Routes ---
 console.log("Mounting routes...");
 app.use('/api/reports', reportRoutes);
@@ -56,6 +67,7 @@ console.log("Customer routes mounted");
 app.use('/api/risk', riskRoutes);
 console.log("Risk routes mounted");
 app.use('/api/returns', returnRoutes);
+console.log("Return routes mounted");
 
 // app.use('/api/risk', riskRoutes); // Risk analysis routes
 app.get('/', (req, res) => {

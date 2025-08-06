@@ -81,7 +81,7 @@ const ReturnSchema = new mongoose.Schema(
   }
 );
 
-// Index for efficient lookup by customer or return ID
+// Remove duplicate indexes - keep only one method
 ReturnSchema.index({ customer: 1 });
 ReturnSchema.index({ returnId: 1 });
 

@@ -10,7 +10,6 @@ const calculateRiskScore = (totalOrders, totalReturns) => {
   const returnRate = (totalReturns / totalOrders) * 100;
   return Math.min(Math.round(returnRate), 100);
 };
-
 const getRiskLevelString = (score) => {
   if (score >= 85) return 'Critical';
   if (score >= 70) return 'High';

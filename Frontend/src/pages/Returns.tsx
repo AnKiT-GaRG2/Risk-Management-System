@@ -129,6 +129,7 @@ const getRiskBadge = (score: number) => {
 
 
 const Returns = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -175,9 +176,12 @@ const Returns = () => {
       `"${ret.status}"`,
       ret.riskScore,
       `"${ret.orderId}"`,
-      // FIXED: Use toLocaleString() on the number, and handle potential non-numeric values
-      typeof ret.productPrice === 'number' ? ret.productPrice.toFixed(2) : ret.productPrice.replace(/[^0-9.]/g, ''),
+      // FIXED: Convert to string first, then apply replace
+      typeof ret.productPrice === 'number' 
+        ? ret.productPrice.toFixed(2) 
+        : String(ret.productPrice || '0').replace(/[^0-9.]/g, '') || '0.00'
     ].join(','));
+    
     const csvContent = [headers.join(','), ...csvRows].join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
@@ -493,10 +497,17 @@ const Returns = () => {
                   </div>
 
                   <div className="flex gap-3">
-                    <Button className="flex-1">
-                      <CheckCircle2 className="h-4 w-4 mr-2" />
-                      Approve Return
-                    </Button>
+                    <Button
+  className="flex-1"
+  onClick={() => {
+    console.log(`🔥 FRONTEND: Navigating to approval page for return ID: ${selectedReturnId}`);
+    navigate(`/approval/${selectedReturnId}`);
+  }}
+>
+  <CheckCircle2 className="h-4 w-4 mr-2" />
+  Approve Return
+</Button>
+
                     <Button variant="destructive" className="flex-1">
                       <XCircle className="h-4 w-4 mr-2" />
                       Reject Return
@@ -527,5 +538,6 @@ const Returns = () => {
     </div>
   );
 };
+
 
 export default Returns;
