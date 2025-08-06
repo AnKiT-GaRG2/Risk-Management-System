@@ -14,6 +14,7 @@ import customerRoutes from './routes/customerRoutes.js';
 import reportRoutes from './routes/reportRoutes.js'; // Add this import
 import analyticsRoutes from './routes/analyticsRoutes.js';
 import riskRoutes from './routes/riskRoutes.js';
+import returnRoutes from './routes/returnRoutes.js';
 
 dotenv.config();
 
@@ -54,6 +55,7 @@ app.use('/api/customers', customerRoutes);
 console.log("Customer routes mounted");
 app.use('/api/risk', riskRoutes);
 console.log("Risk routes mounted");
+app.use('/api/returns', returnRoutes);
 
 // app.use('/api/risk', riskRoutes); // Risk analysis routes
 app.get('/', (req, res) => {
