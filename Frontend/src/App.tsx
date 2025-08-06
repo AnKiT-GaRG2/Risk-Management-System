@@ -15,6 +15,7 @@ import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import AdminRegisterForm from "./pages/AdminRegisterForm";
 import Approval from "./pages/approval";
+import Rejection from "./pages/rejection";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,7 @@ const App = () => (
 
           {/* full-page approval screen (without AdminLayout) */}
           <Route path="/approval/:id" element={<Approval />} />
+          <Route path="/rejection/:id" element={<Rejection />} />
 
           {/* routes that show sidebar + admin layout */}
           <Route element={<AdminLayout />}>

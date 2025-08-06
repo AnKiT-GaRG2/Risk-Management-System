@@ -5,7 +5,7 @@ import { asyncHandler } from '../utils/asyncHandler.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import { ApiError } from '../utils/ApiError.js';
 import ReturnRisk from '../models/ReturnRisk.js';
-import { sendApprovalMail } from '../utils/mailer.js';
+import { sendApprovalMail, sendRejectionMail } from '../utils/mailer.js';
 
 // Helper function to calculate risk score (reused from customer controller)
 const calculateRiskScore = (totalOrders, totalReturns) => {
@@ -243,4 +243,113 @@ const approveReturn = asyncHandler(async (req, res) => {
   }
 });
 
-export { getReturnStats, getReturns, getReturnById, approveReturn };
+
+/**
+ * @function rejectReturn
+ * @description Rejects a return request and sends email to customer
+ * @route POST /api/returns/:id/reject
+ * @access Private (Admin only)
+ */
+const rejectReturn = asyncHandler(async (req, res) => {
+  try {
+    const returnId = req.params.id;
+    console.log(`🚀 REJECT CONTROLLER STARTED - Return ID: ${returnId}`);
+    console.log(`🚀 Request User:`, req.user);
+
+    // Find the return by ID and populate customer data
+    console.log(`🔍 Searching for return with ID: ${returnId}`);
+    const returnItem = await Return.findById(returnId).populate('customer', 'email name customerId');
+    console.log(`🔍 Found return:`, returnItem ? 'YES' : 'NO');
+
+    if (!returnItem) {
+      console.log(`❌ Return not found with ID: ${returnId}`);
+      return res.status(404).json({
+        success: false,
+        message: 'Return not found'
+      });
+    }
+
+    console.log(`✅ Return found: ${returnItem.returnId}`);
+    console.log(`📧 Customer populated:`, returnItem.customer ? 'YES' : 'NO');
+    console.log(`📧 Customer email:`, returnItem.customer?.email);
+
+    // Check if already rejected
+    if (returnItem.status === 'Rejected') {
+      console.log(`⚠️ Return already rejected: ${returnItem.returnId}`);
+      return res.status(400).json({
+        success: false,
+        message: 'Return is already rejected'
+      });
+    }
+
+    // Update return status to rejected
+    console.log(`📝 Updating return status to Rejected...`);
+    returnItem.status = 'Rejected';
+    returnItem.responseTime = new Date().toISOString();
+    await returnItem.save();
+    console.log(`✅ Return status updated successfully`);
+
+    // Get customer email
+    const customerEmail = returnItem.customer?.email;
+    const customerName = returnItem.customer?.name;
+    
+    console.log(`📧 Customer Email: ${customerEmail}`);
+    console.log(`👤 Customer Name: ${customerName}`);
+    
+    if (!customerEmail) {
+      console.log(`❌ Customer email not found for return: ${returnItem.returnId}`);
+      return res.status(400).json({
+        success: false,
+        message: 'Customer email not found'
+      });
+    }
+
+    try {
+      // Send rejection email
+      console.log(`📤 Attempting to send rejection email to: ${customerEmail}`);
+      console.log(`📤 Return ID for email: ${returnItem.returnId}`);
+      console.log(`📤 Customer name for email: ${customerName}`);
+      
+      const emailResult = await sendRejectionMail(customerEmail, returnItem.returnId, customerName);
+      console.log(`✅ Rejection email sent successfully:`, emailResult.messageId);
+      
+      const responseData = {
+        success: true,
+        data: { 
+          returnId: returnItem.returnId,
+          status: returnItem.status,
+          customerEmail: customerEmail,
+          customerName: customerName
+        }, 
+        message: 'Return rejected and email sent successfully'
+      };
+      
+      console.log(`📤 Sending response:`, responseData);
+      return res.status(200).json(responseData);
+      
+    } catch (emailError) {
+      console.error(`❌ Email sending failed:`, emailError);
+      console.error(`❌ Email error stack:`, emailError.stack);
+      
+      // Revert the status change if email fails
+      console.log(`🔄 Reverting return status to Pending...`);
+      returnItem.status = 'Pending';
+      await returnItem.save();
+      console.log(`🔄 Status reverted successfully`);
+      
+      return res.status(500).json({
+        success: false,
+        message: `Return rejection failed: ${emailError.message}`
+      });
+    }
+  } catch (error) {
+    console.error(`💥 REJECT CONTROLLER ERROR:`, error);
+    console.error(`💥 Error stack:`, error.stack);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    });
+  }
+});
+
+export { getReturnStats, getReturns, getReturnById, approveReturn, rejectReturn };

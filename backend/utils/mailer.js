@@ -68,21 +68,48 @@ export const sendApprovalMail = async (to, returnId, customerName = '') => {
   }
 };
 
-export const sendRejectionMail = async (to, returnId) => {
+export const sendRejectionMail = async (to, returnId, customerName = '') => {
   try {
-    console.log(`📤 SENDING REJECTION EMAIL to ${to} for return ${returnId}`);
+    console.log(`📤 SENDING REJECTION EMAIL`);
+    console.log(`📤 To: ${to}`);
+    console.log(`📤 Return ID: ${returnId}`);
+    console.log(`📤 Customer Name: ${customerName}`);
     
-    const result = await transporter.sendMail({
-      from: `"Return Risk System" <${process.env.MAIL_USER}>`,
+    const mailOptions = {
+      from: `"Risk Return System" <${process.env.MAIL_USER}>`,
       to,
       subject: `Return ${returnId} Rejected`,
-      html: `<p>Dear Customer,<br/>We regret to inform you that your return request <b>${returnId}</b> has been <span style="color:red">rejected</span>.</p>`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #dc3545;">Return Request Rejected</h2>
+          ${customerName ? `<p>Dear ${customerName},</p>` : '<p>Dear Customer,</p>'}
+          <p>We regret to inform you that your return request <strong>${returnId}</strong> has been <span style="color: #dc3545; font-weight: bold;">rejected</span>.</p>
+          <p>After careful review, we are unable to process this return request. This decision may be based on our return policy guidelines.</p>
+          <p>If you have any questions or believe this decision was made in error, please contact our customer service team.</p>
+          <p>Thank you for your understanding.</p>
+          <hr>
+          <p style="color: #666; font-size: 12px;">Risk Return Management System</p>
+        </div>
+      `,
+    };
+    
+    console.log(`📤 Mail options:`, {
+      from: mailOptions.from,
+      to: mailOptions.to,
+      subject: mailOptions.subject
     });
     
-    console.log(`✅ Rejection email sent successfully: ${result.messageId}`);
+    const result = await transporter.sendMail(mailOptions);
+    console.log(`✅ Rejection email sent successfully to ${to} for return ${returnId}`);
+    console.log(`✅ Message ID: ${result.messageId}`);
+    console.log(`✅ Response: ${result.response}`);
+    
     return result;
   } catch (error) {
     console.error(`❌ Error sending rejection email:`, error);
+    console.error(`❌ Error code:`, error.code);
+    console.error(`❌ Error response:`, error.response);
+    console.error(`❌ Error stack:`, error.stack);
     throw error;
   }
 };

@@ -31,24 +31,18 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Search,
-  Filter,
-  Download,
-  Eye,
-  AlertTriangle,
-  TrendingUp,
-  TrendingDown,
-  Calendar,
-  Clock,
   CheckCircle2,
   XCircle,
+  Clock,
+  Filter,
+  Download,
+  Search,
+  Eye,
+  List,
   Package,
   MessageSquare,
-  User,
-  List,
-  BarChart,
-  DollarSign
-} from "lucide-react";
+  AlertTriangle
+} from 'lucide-react';
 import { useQuery } from "@tanstack/react-query";
 import { getReturnStats, getReturns, getReturnById } from "../lib/api";
 import { useToast } from "@/hooks/use-toast";
@@ -498,17 +492,24 @@ const Returns = () => {
 
                   <div className="flex gap-3">
                     <Button
-  className="flex-1"
-  onClick={() => {
-    console.log(`🔥 FRONTEND: Navigating to approval page for return ID: ${selectedReturnId}`);
-    navigate(`/approval/${selectedReturnId}`);
-  }}
->
-  <CheckCircle2 className="h-4 w-4 mr-2" />
-  Approve Return
-</Button>
+                      className="flex-1"
+                      onClick={() => {
+                        console.log(`🔥 FRONTEND: Navigating to approval page for return ID: ${selectedReturnId}`);
+                        navigate(`/approval/${selectedReturnId}`);
+                      }}
+                    >
+                      <CheckCircle2 className="h-4 w-4 mr-2" />
+                      Approve Return
+                    </Button>
 
-                    <Button variant="destructive" className="flex-1">
+                    <Button
+                      variant="destructive"
+                      className="flex-1"
+                      onClick={() => {
+                        console.log(`🔥 FRONTEND: Navigating to rejection page for return ID: ${selectedReturnId}`);
+                        navigate(`/rejection/${selectedReturnId}`);
+                      }}
+                    >
                       <XCircle className="h-4 w-4 mr-2" />
                       Reject Return
                     </Button>
