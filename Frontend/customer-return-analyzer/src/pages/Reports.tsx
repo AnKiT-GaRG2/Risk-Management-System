@@ -61,40 +61,40 @@ const Reports = () => {
       description:
         "Comprehensive report of all customer risk scores and patterns",
       icon: Users,
-      frequency: "Weekly",
+      // frequency: "Weekly",
       lastGenerated: "2024-01-15",
       downloadCount: 45,
-      type: "PDF",
+      type: "CSV",
     },
     {
       id: "return-analysis",
       name: "Return Analysis Report",
       description: "Detailed analysis of return patterns, reasons, and trends",
       icon: TrendingUp,
-      frequency: "Monthly",
+      // frequency: "Monthly",
       lastGenerated: "2024-01-01",
       downloadCount: 23,
-      type: "Excel",
+      type: "CSV",
     },
     {
       id: "high-risk-alerts",
       name: "High Risk Customer Alerts",
       description: "List of customers flagged as high risk requiring attention",
       icon: AlertTriangle,
-      frequency: "Daily",
+      // frequency: "Daily",
       lastGenerated: "2024-01-15",
       downloadCount: 89,
-      type: "PDF",
+      type: "CSV",
     },
     {
       id: "financial-impact",
       name: "Financial Impact Assessment",
       description: "Revenue impact analysis of returns and risk mitigation",
       icon: DollarSign,
-      frequency: "Monthly",
+      // frequency: "Monthly",
       lastGenerated: "2024-01-01",
       downloadCount: 12,
-      type: "Excel",
+      type: "CSV",
     },
     {
       id: "category-insights",
@@ -102,10 +102,10 @@ const Reports = () => {
       description:
         "Product category breakdown with return rates and risk scores",
       icon: BarChart3,
-      frequency: "Bi-weekly",
+      // frequency: "Bi-weekly",
       lastGenerated: "2024-01-08",
       downloadCount: 34,
-      type: "PDF",
+      type: "CSV",
     },
     {
       id: "trend-forecast",
@@ -113,10 +113,10 @@ const Reports = () => {
       description:
         "Predictive analysis of return patterns and risk projections",
       icon: FileText,
-      frequency: "Quarterly",
+      // frequency: "Quarterly",
       lastGenerated: "2024-01-01",
       downloadCount: 8,
-      type: "PDF",
+      type: "CSV",
     },
   ];
 
@@ -183,24 +183,7 @@ const Reports = () => {
             Generate and schedule comprehensive business reports
           </p>
         </div>
-        <div className="flex gap-3">
-          <Select defaultValue="all">
-            <SelectTrigger className="w-48">
-              <Calendar className="h-4 w-4 mr-2" />
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Reports</SelectItem>
-              <SelectItem value="daily">Daily Reports</SelectItem>
-              <SelectItem value="weekly">Weekly Reports</SelectItem>
-              <SelectItem value="monthly">Monthly Reports</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button>
-            <FileText className="h-4 w-4 mr-2" />
-            Custom Report
-          </Button>
-        </div>
+        
       </div>
 
       {/* Quick Stats */}
@@ -279,12 +262,12 @@ const Reports = () => {
           <CardDescription>
             Pre-configured reports ready to generate or schedule
           </CardDescription>
-        </CardHeader>
+        </CardHeader>z
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {reportTemplates.map((report) => {
               const Icon = report.icon;
-              const frequencyBadge = getFrequencyBadge(report.frequency);
+              // const frequencyBadge = getFrequencyBadge(report.frequency);
 
               return (
                 <Card
@@ -305,9 +288,9 @@ const Reports = () => {
                         </p>
 
                         <div className="flex items-center gap-2 mb-3">
-                          <Badge className={frequencyBadge.color}>
-                            {report.frequency}
-                          </Badge>
+                          {/* <Badge className={frequencyBadge.color}> */}
+                            {/* {report.frequency} */}
+                          {/* </Badge> */}
                           <Badge variant="outline">{report.type}</Badge>
                         </div>
 

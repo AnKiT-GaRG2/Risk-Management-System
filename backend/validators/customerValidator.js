@@ -1,6 +1,5 @@
 import Joi from 'joi';
 
-// Joi schema for creating a new customer
 const createCustomerSchema = Joi.object({
     customerId: Joi.string()
         .required()
