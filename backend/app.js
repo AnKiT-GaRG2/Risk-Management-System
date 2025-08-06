@@ -12,6 +12,12 @@ import authRoutes from './routes/authRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import customerRoutes from './routes/customerRoutes.js';
 import reportRoutes from './routes/reportRoutes.js'; // Add this import
+<<<<<<< HEAD
+=======
+import analyticsRoutes from './routes/analyticsRoutes.js';
+import riskRoutes from './routes/riskRoutes.js';
+import returnRoutes from './routes/returnRoutes.js';
+>>>>>>> main
 
 dotenv.config();
 
@@ -39,11 +45,20 @@ app.use(cookieParser());
 app.use(morganMiddleware);
 
 // --- Routes ---
+console.log("Mounting routes...");
 app.use('/api/reports', reportRoutes);
+console.log("Reports routes mounted");
 app.use('/api/auth', authRoutes);
+console.log("Auth routes mounted");
 app.use('/api/dashboard', dashboardRoutes);
-
+console.log("Dashboard routes mounted");
+app.use('/api/analytics', analyticsRoutes);
+console.log("Analytics routes mounted");
 app.use('/api/customers', customerRoutes);
+console.log("Customer routes mounted");
+app.use('/api/risk', riskRoutes);
+console.log("Risk routes mounted");
+app.use('/api/returns', returnRoutes);
 
 // app.use('/api/risk', riskRoutes); // Risk analysis routes
 app.get('/', (req, res) => {

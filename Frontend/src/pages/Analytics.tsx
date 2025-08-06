@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,49 +16,173 @@ import {
   Line,
   PieChart,
   Pie,
-  Cell
+  Cell,
+  ComposedChart
 } from "recharts";
-import { TrendingUp, TrendingDown, Calendar, Download } from "lucide-react";
+import { TrendingUp, TrendingDown, Calendar, Download, Loader2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { getAnalyticsData } from "../lib/api";
 
+// Define your interface types
+interface Metric {
+  title: string;
+  value: string;
+  change: string;
+  trend: "up" | "down";
+}
+
+interface MonthlyData {
+  month: string;
+  returns: number;
+  riskScore: number;
+  revenue: number;
+}
+
+interface CategoryData {
+  category: string;
+  returns: number;
+  riskScore: number;
+  color: string;
+}
+
+interface RiskDistribution {
+  name: string;
+  value: number;
+  color: string;
+  percentage: string;
+}
+
+interface ReturnReason {
+  reason: string;
+  count: number;
+  percentage: string;
+}
+
+interface AnalyticsData {
+  metrics: Metric[];
+  monthlyData: MonthlyData[];
+  riskDistribution: RiskDistribution[];
+  categoryData: CategoryData[];
+  topReasons: ReturnReason[];
+}
+
+interface ApiResponseData {
+  statusCode: number;
+  data: AnalyticsData;
+  message: string;
+  success: boolean;
+}
+
+const FALLBACK_DATA: AnalyticsData = {
+  metrics: [
+    { title: "Avg Risk Score", value: "0", change: "0%", trend: "down" },
+    { title: "Return Rate", value: "0%", change: "0%", trend: "down" },
+    { title: "High Risk %", value: "0%", change: "0%", trend: "down" },
+    { title: "Revenue Impact", value: "$0K", change: "0%", trend: "down" }
+  ],
+  monthlyData: [
+    { month: "Jan", returns: 0, riskScore: 0, revenue: 0 },
+    { month: "Feb", returns: 0, riskScore: 0, revenue: 0 },
+    { month: "Mar", returns: 0, riskScore: 0, revenue: 0 }
+  ],
+  riskDistribution: [
+    { name: "Low Risk", value: 1, color: "#10B981", percentage: "33.3" },
+    { name: "Medium Risk", value: 1, color: "#F59E0B", percentage: "33.3" },
+    { name: "High Risk", value: 1, color: "#EF4444", percentage: "33.3" }
+  ],
+  categoryData: [
+    { category: "No Data", returns: 0, riskScore: 0, color: "#6B7280" }
+  ],
+  topReasons: [
+    { reason: "No Data", count: 0, percentage: "0" }
+  ]
+};
 const Analytics = () => {
-  const monthlyData = [
-    { month: "Jan", returns: 145, riskScore: 23.5, revenue: 48200 },
-    { month: "Feb", returns: 132, riskScore: 21.8, revenue: 52100 },
-    { month: "Mar", returns: 178, riskScore: 28.2, revenue: 45800 },
-    { month: "Apr", returns: 156, riskScore: 25.1, revenue: 49300 },
-    { month: "May", returns: 189, riskScore: 31.4, revenue: 43700 },
-    { month: "Jun", returns: 142, riskScore: 22.7, revenue: 51900 },
-    { month: "Jul", returns: 167, riskScore: 26.8, revenue: 47600 },
-    { month: "Aug", returns: 153, riskScore: 24.9, revenue: 50200 },
-    { month: "Sep", returns: 171, riskScore: 27.3, revenue: 46800 },
-    { month: "Oct", returns: 184, riskScore: 29.6, revenue: 44500 },
-    { month: "Nov", returns: 176, riskScore: 28.1, revenue: 45900 },
-    { month: "Dec", returns: 198, riskScore: 32.7, revenue: 42100 }
-  ];
+  const [timePeriod, setTimePeriod] = useState("12months");
+  
+  // Fetch analytics data
+const { 
+  data: apiResponse, 
+  isLoading, 
+  isError, 
+  error,
+  refetch
+} = useQuery<ApiResponseData, Error>({
+  queryKey: ['analyticsData', timePeriod],
+  queryFn: async () => {
+    try {
+      console.log("Fetching analytics data for period:", timePeriod);
+      const data = await getAnalyticsData(timePeriod);
+      console.log("API Response:", data);
+      console.log("API Response type:", typeof data);
+      console.log("API Response keys:", data ? Object.keys(data) : 'null');
+      console.log("API Response.data:", data?.data);
+      return data;
+    } catch (error) {
+      console.error("Error in queryFn:", error);
+      throw error instanceof Error 
+        ? error 
+        : new Error("Failed to fetch analytics data");
+    }
+  },
+  staleTime: 5 * 60 * 1000,
+  gcTime: 10 * 60 * 1000,
+  retry: 1,
+  retryDelay: 1000,
+});
+  
+  // Extract data from API response
+  const { 
+  metrics = FALLBACK_DATA.metrics, 
+  monthlyData = FALLBACK_DATA.monthlyData, 
+  riskDistribution = FALLBACK_DATA.riskDistribution,
+  categoryData = FALLBACK_DATA.categoryData,
+  topReasons = FALLBACK_DATA.topReasons
+} = apiResponse?.data || FALLBACK_DATA;
+  
+  // Handle time period change
+  const handlePeriodChange = (value: string) => {
+    setTimePeriod(value);
+  };
+  
+useEffect(() => {
+  console.log("Analytics component mounted, checking connection to backend");
+  
+  // Test API endpoint directly
+  fetch('http://localhost:5000/api/analytics?period=12months')
+    .then(res => {
+      console.log('Direct API test response status:', res.status);
+      return res.json();
+    })
+    .then(data => console.log('Direct API test data:', data))
+    .catch(err => console.error('Direct API test error:', err));
+    
+  return () => console.log("Analytics component unmounted");
+}, []);
 
-  const categoryData = [
-    { category: "Electronics", returns: 234, riskScore: 45.2, color: "#3B82F6" },
-    { category: "Fashion", returns: 189, riskScore: 52.8, color: "#EF4444" },
-    { category: "Beauty", returns: 156, riskScore: 38.7, color: "#10B981" },
-    { category: "Home", returns: 123, riskScore: 28.4, color: "#F59E0B" },
-    { category: "Sports", returns: 98, riskScore: 31.6, color: "#8B5CF6" },
-    { category: "Books", returns: 45, riskScore: 18.3, color: "#06B6D4" }
-  ];
-
-  const riskDistribution = [
-    { name: "Low Risk", value: 8543, color: "#10B981", percentage: 66.5 },
-    { name: "Medium Risk", value: 4020, color: "#F59E0B", percentage: 31.3 },
-    { name: "High Risk", value: 284, color: "#EF4444", percentage: 2.2 }
-  ];
-
-  const topReasons = [
-    { reason: "Size/Fit Issues", count: 412, percentage: 28.5 },
-    { reason: "Defective/Damaged", count: 356, percentage: 24.7 },
-    { reason: "Not as Described", count: 298, percentage: 20.6 },
-    { reason: "Wrong Item", count: 187, percentage: 13.0 },
-    { reason: "Color Mismatch", count: 142, percentage: 9.8 },
-    { reason: "Other", count: 49, percentage: 3.4 }
-  ];
+  // Render loading state
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-[60vh] text-foreground">
+        <div className="flex flex-col items-center gap-2">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p>Loading analytics data...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // Render error state
+  if (isError) {
+    return (
+      <div className="flex flex-col justify-center items-center min-h-[60vh] text-red-500">
+        <p>Error loading analytics: {error?.message || "An unknown error occurred"}</p>
+        <Button onClick={() => refetch()} className="mt-4">
+          Retry
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -68,7 +193,7 @@ const Analytics = () => {
           <p className="text-muted-foreground">Deep insights into return patterns and risk trends</p>
         </div>
         <div className="flex gap-3">
-          <Select defaultValue="12months">
+          <Select value={timePeriod} onValueChange={handlePeriodChange}>
             <SelectTrigger className="w-48">
               <Calendar className="h-4 w-4 mr-2" />
               <SelectValue />
@@ -89,65 +214,28 @@ const Analytics = () => {
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Avg Risk Score</p>
-                <p className="text-2xl font-bold">27.3</p>
-                <div className="flex items-center mt-1">
-                  <TrendingDown className="h-4 w-4 text-green-600 mr-1" />
-                  <span className="text-sm text-green-600">-2.1% vs last period</span>
+        {metrics.map((metric, index) => (
+          <Card key={index}>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">{metric.title}</p>
+                  <p className="text-2xl font-bold">{metric.value}</p>
+                  <div className="flex items-center mt-1">
+                    {metric.trend === "down" ? (
+                      <TrendingDown className="h-4 w-4 text-green-600 mr-1" />
+                    ) : (
+                      <TrendingUp className="h-4 w-4 text-red-600 mr-1" />
+                    )}
+                    <span className={`text-sm ${metric.trend === "down" ? "text-green-600" : "text-red-600"}`}>
+                      {metric.change} vs last period
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Return Rate</p>
-                <p className="text-2xl font-bold">18.3%</p>
-                <div className="flex items-center mt-1">
-                  <TrendingUp className="h-4 w-4 text-red-600 mr-1" />
-                  <span className="text-sm text-red-600">+0.8% vs last period</span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">High Risk %</p>
-                <p className="text-2xl font-bold">2.2%</p>
-                <div className="flex items-center mt-1">
-                  <TrendingDown className="h-4 w-4 text-green-600 mr-1" />
-                  <span className="text-sm text-green-600">-0.3% vs last period</span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Revenue Impact</p>
-                <p className="text-2xl font-bold">$542K</p>
-                <div className="flex items-center mt-1">
-                  <TrendingUp className="h-4 w-4 text-red-600 mr-1" />
-                  <span className="text-sm text-red-600">+5.2% vs last period</span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -159,7 +247,7 @@ const Analytics = () => {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={monthlyData}>
+              <ComposedChart data={monthlyData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
                 <YAxis yAxisId="left" />
@@ -175,7 +263,7 @@ const Analytics = () => {
                   strokeWidth={2}
                   name="Avg Risk Score"
                 />
-              </LineChart>
+              </ComposedChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
@@ -210,7 +298,7 @@ const Analytics = () => {
                           fontSize={12}
                           fontWeight="bold"
                         >
-                          {`${(percent * 100).toFixed(1)}%`}
+                          {`${riskDistribution[index].percentage}%`}
                         </text>
                       );
                     }}
@@ -222,7 +310,7 @@ const Analytics = () => {
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value, name, props) => [`${props.payload.percentage}%`, name]} />
+                  <Tooltip formatter={(value, name, props) => [props.payload.percentage + '%', name]} />
                 </PieChart>
               </ResponsiveContainer>
             </div>

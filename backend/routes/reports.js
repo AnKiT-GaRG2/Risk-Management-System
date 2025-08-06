@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 const express = require('express');
 const router = express.Router();
 
@@ -5,6 +6,19 @@ const { Parser } = require('json2csv');
 const Customer = require('../models/Customer');
 const Return = require('../models/Return');
 const ReturnRisk = require('../models/ReturnRisk');
+=======
+import express from 'express';
+import { Parser } from 'json2csv';
+import Customer from '../models/Customer.js';
+import { protect, authorize } from '../middleware/authMiddleware.js';
+
+const router = express.Router();
+
+// Generate customer risk summary CSV (admin only)
+router.get('/generate-customer-risk-summary', protect, authorize(['admin', 'superadmin']), async (req, res) => {
+  try {
+    const customers = await Customer.find();
+>>>>>>> main
 
 // Helper formatting for dates
 const formatDate = (date) => date ? new Date(date).toLocaleDateString() : '';

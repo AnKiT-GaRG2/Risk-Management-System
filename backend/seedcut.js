@@ -2,18 +2,16 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import Customer from './models/Customer.js';
-import ReturnRisk from './models/ReturnRisk.js'; // Import ReturnRisk model
+import ReturnRisk from './models/ReturnRisk.js';
 
 dotenv.config({ path: './.env' });
 
-// Helper function to calculate risk score (reused from dashboard controller)
 const calculateRiskScore = (totalOrders, totalReturns) => {
   if (totalOrders === 0) return 0;
   const returnRate = (totalReturns / totalOrders) * 100;
   return Math.min(Math.round(returnRate), 100);
 };
 
-// Helper function to determine risk level string
 const getRiskLevelString = (score) => {
   if (score >= 85) return 'Critical';
   if (score >= 70) return 'High';
@@ -29,9 +27,7 @@ const seedReturnRisks = async () => {
     await ReturnRisk.deleteMany();
     console.log("Existing return risks cleared.");
 
-    // Fetch ALL customers to create risk entries for.
     const customers = await Customer.find({});
-
     if (customers.length === 0) {
       console.warn("No customers found. Please run seedCustomers.js first.");
       process.exit(1);
@@ -46,7 +42,6 @@ const seedReturnRisks = async () => {
       let factors = new Map();
       let recommendations = [];
 
-      // Simulate factors and recommendations based on risk level
       if (riskLevel === 'High' || riskLevel === 'Critical') {
         factors.set('highReturnRate', 1);
         if (customer.totalReturns > 10) factors.set('frequentReturns', 1);

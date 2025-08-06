@@ -46,7 +46,24 @@ export const refreshAccessToken = async () => {
 };
 export const logout = async () => api.post('/auth/logout', {});
 
-
+export const getAnalyticsData = async (period = '12months') => {
+  try {
+    // Log the request being made
+    console.log(`Fetching analytics data with period: ${period}`);
+    
+    // Make the API call
+    const response = await api.get(`/analytics?period=${period}`);
+    
+    // Log success
+    console.log('Analytics API call successful:', response);
+    
+    return response; // response interceptor already returns response.data
+  } catch (error) {
+    // Log detailed error information
+    console.error("Analytics API call failed:", error);
+    throw error;
+  }
+};
 export const registerAdmin = async (data) => api.post('/auth/register', data);
 
 //api call for fetching the dashboard data
@@ -60,6 +77,10 @@ export const getCustomers = async (params) => api.get('/customers', { params });
  * @returns {Promise<object>} - A single customer object.
  */
 export const getCustomerById = async (id) => api.get(`/customers/${id}`); // Removed type annotation
+
+export const getReturnStats = async () => api.get('/returns/stats');
+export const getReturns = async (params) => api.get('/returns', { params });
+export const getReturnById = async (id) => api.get(`/returns/${id}`);
 
 
 export default api;
