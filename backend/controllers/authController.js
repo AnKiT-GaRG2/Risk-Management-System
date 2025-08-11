@@ -1,196 +1,158 @@
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 import Admin from '../models/Admin.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
-import { ApiError } from '../utils/ApiError.js';
-import { ApiResponse } from '../utils/ApiResponse.js';
-import bcrypt from 'bcryptjs';
-import mongoose from 'mongoose';
 
-const generateAccessAndRefreshTokens = async (admin) => {
-    try {
-        const accessToken = admin.generateAccessToken();
-        const refreshToken = admin.generateRefreshToken();
+export const login = asyncHandler(async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    console.log('🔐 Login attempt for:', email);
 
-        admin.refreshToken = refreshToken;
-        await admin.save({ validateBeforeSave: false });
-
-        return { accessToken, refreshToken };
-    } catch (error) {
-        throw new ApiError(500, "Something went wrong while generating tokens");
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email and password are required'
+      });
     }
-};
 
-
-const adminLogin = asyncHandler(async (req, res) => {
-    console.log("Attempting admin login...");
-    console.log('Mongoose Connection State:', mongoose.connection.readyState);
-
-    const { emailOrUsername, password } = req.body;
-
-    const admin = await Admin.findOne({
-        $or: [{ username: emailOrUsername }, { email: emailOrUsername }]
-    }).select('+password');
-
+    // Find admin by email
+    const admin = await Admin.findOne({ email }).select('+password');
     if (!admin) {
-        throw new ApiError(400, 'Invalid credentials');
+      console.log('❌ Admin not found:', email);
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid credentials'
+      });
     }
 
-    const isMatch = await admin.matchPassword(password);
-
-    if (!isMatch) {
-        throw new ApiError(400, 'Invalid credentials');
+    // Check password
+    const isPasswordValid = await bcrypt.compare(password, admin.password);
+    if (!isPasswordValid) {
+      console.log('❌ Invalid password for:', email);
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid credentials'
+      });
     }
 
-    const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(admin);
-    const cookieOptions = {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production', // Only send over HTTPS in production
-        sameSite: 'Lax', // Protects against some CSRF attacks
-    };
-    const accessTokenExpiry = parseInt(process.env.ACCESS_TOKEN_EXPIRY_MS);
-    if (isNaN(accessTokenExpiry)) {
-        throw new ApiError(500, 'ACCESS_TOKEN_EXPIRY_MS environment variable is not a valid number.');
-    }
-    res.cookie('accessToken', accessToken, { ...cookieOptions, maxAge: accessTokenExpiry });
-    const refreshTokenExpiry = parseInt(process.env.REFRESH_TOKEN_EXPIRY_MS);
-    if (isNaN(refreshTokenExpiry)) {
-        throw new ApiError(500, 'REFRESH_TOKEN_EXPIRY_MS environment variable is not a valid number.');
-    }
-    res.cookie('refreshToken', refreshToken, { ...cookieOptions, maxAge: refreshTokenExpiry });
-
-    res.status(200).json(
-        new ApiResponse(
-            200,
-            { 
-                admin: {
-                    id: admin._id,
-                    username: admin.username,
-                    email: admin.email, 
-                    role: admin.role,
-                },
-            },
-            'Login successful'
-        )
+    // Generate tokens
+    const accessToken = jwt.sign(
+      { id: admin._id, email: admin.email, role: admin.role },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || '15m' }
     );
-});
 
-
-const logoutAdmin = asyncHandler(async (req, res) => {
-    await Admin.findByIdAndUpdate(
-        req.user._id,
-        { $set: { refreshToken: undefined } },
-        { new: true }
+    const refreshToken = jwt.sign(
+      { id: admin._id },
+      process.env.JWT_REFRESH_SECRET,
+      { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d' }
     );
+
+    // Cookie options
     const cookieOptions = {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'Lax'
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: '/' // Important: set path
     };
 
-    res.status(200)
-        .clearCookie('accessToken', cookieOptions) 
-        .clearCookie('refreshToken', cookieOptions) 
-        .json(new ApiResponse(200, null, 'Logged out successfully'));
-});
+    console.log('🍪 Setting refresh token cookie with options:', cookieOptions);
 
-const refreshAccessToken = asyncHandler(async (req, res) => {
-    const incomingRefreshToken = req.cookies.refreshToken;
+    // Set refresh token as httpOnly cookie
+    res.cookie('refreshToken', refreshToken, cookieOptions);
 
-    if (!incomingRefreshToken) {
-        throw new ApiError(401, 'Unauthorized request: No refresh token provided');
-    }
+    console.log('✅ Login successful for:', email);
 
-    try {
-        const decodedToken = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET);
-
-        const admin = await Admin.findById(decodedToken.id);
-
-        if (!admin) {
-            throw new ApiError(401, 'Invalid refresh token: User not found');
+    res.status(200).json({
+      success: true,
+      message: 'Login successful',
+      data: {
+        accessToken,
+        admin: {
+          id: admin._id,
+          name: admin.name,
+          email: admin.email,
+          role: admin.role
         }
-
-        if (incomingRefreshToken !== admin.refreshToken) {
-            throw new ApiError(401, 'Refresh token tampered or expired');
-        }
-
-        const { accessToken, refreshToken: newRefreshToken } = await generateAccessAndRefreshTokens(admin);
-
-        const cookieOptions = {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'Lax',
-        };
-
-        const accessTokenExpiry = parseInt(process.env.ACCESS_TOKEN_EXPIRY_MS);
-        if (isNaN(accessTokenExpiry)) {
-            throw new ApiError(500, 'ACCESS_TOKEN_EXPIRY_MS environment variable is not a valid number.');
-        }
-        res.cookie('accessToken', accessToken, { ...cookieOptions, maxAge: accessTokenExpiry });
-
-        const refreshTokenExpiry = parseInt(process.env.REFRESH_TOKEN_EXPIRY_MS);
-        if (isNaN(refreshTokenExpiry)) {
-            throw new ApiError(500, 'REFRESH_TOKEN_EXPIRY_MS environment variable is not a valid number.');
-        }
-        res.cookie('refreshToken', newRefreshToken, { ...cookieOptions, maxAge: refreshTokenExpiry });
-
-        res.status(200).json(
-            new ApiResponse(
-                200,
-                { 
-                    admin: {
-                        id: admin._id,
-                        username: admin.username,
-                        email: admin.email, 
-                        role: admin.role,
-                    },
-                },
-                'Tokens refreshed successfully'
-            )
-        );
-
-    } catch (error) {
-        console.error("Refresh token error:", error);
-        if (error instanceof jwt.TokenExpiredError) {
-            throw new ApiError(401, 'Refresh token expired');
-        }
-        if (error instanceof jwt.JsonWebTokenError) {
-            throw new ApiError(401, 'Invalid refresh token');
-        }
-        throw new ApiError(500, error.message || 'Server error during token refresh');
-    }
-});
-
-// Optional: Admin registration (for initial setup, then disable or remove)
-const registerAdmin = asyncHandler(async (req, res) => {
-    const { username, email, password, role } = req.body;
-
-    const adminExists = await Admin.findOne({
-        $or: [
-            { username: username },
-            { email: email }
-        ]
+      }
     });
-    if (adminExists) {
-        throw new ApiError(400, 'Admin already exists');
-    }
 
-    const admin = await Admin.create({ username, email, password, role });
-
-    res.status(201).json(
-        new ApiResponse(
-            201,
-            {
-                admin: {
-                    id: admin._id,
-                    username: admin.username,
-                    email: admin.email,
-                    role: admin.role,
-                },
-            },
-            'Admin registered successfully'
-        )
-    );
+  } catch (error) {
+    console.error('❌ Login error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    });
+  }
 });
 
+export const refreshAccessToken = asyncHandler(async (req, res) => {
+  try {
+    console.log('🔄 Refresh token request received');
+    console.log('🍪 All cookies:', req.cookies);
+    console.log('🍪 Refresh token from cookie:', req.cookies?.refreshToken);
 
-export { adminLogin, logoutAdmin, refreshAccessToken, registerAdmin };
+    const { refreshToken } = req.cookies;
+
+    if (!refreshToken) {
+      console.log('❌ No refresh token in cookies');
+      return res.status(401).json({
+        success: false,
+        message: 'No refresh token provided'
+      });
+    }
+
+    // Verify refresh token
+    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+    console.log('🔍 Decoded refresh token:', decoded);
+
+    // Find admin
+    const admin = await Admin.findById(decoded.id);
+    if (!admin) {
+      console.log('❌ Admin not found for refresh token');
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid refresh token'
+      });
+    }
+
+    // Generate new access token
+    const accessToken = jwt.sign(
+      { id: admin._id, email: admin.email, role: admin.role },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || '15m' }
+    );
+
+    console.log('✅ New access token generated for:', admin.email);
+
+    res.status(200).json({
+      success: true,
+      data: { accessToken }
+    });
+
+  } catch (error) {
+    console.error('❌ Refresh token error:', error);
+    res.status(401).json({
+      success: false,
+      message: 'Invalid refresh token'
+    });
+  }
+});
+
+export const logout = asyncHandler(async (req, res) => {
+  console.log('🚪 Logout request received');
+  
+  // Clear refresh token cookie
+  res.clearCookie('refreshToken', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    path: '/'
+  });
+
+  res.status(200).json({
+    success: true,
+    message: 'Logged out successfully'
+  });
+});
