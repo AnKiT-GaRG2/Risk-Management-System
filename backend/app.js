@@ -1,8 +1,8 @@
 import express from 'express';
-import cors from 'cors';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
+import cors from 'cors';
 
 import morganMiddleware from './middleware/morganMiddleware.js';
 import errorMiddleware from './middleware/errorMiddleware.js';
@@ -29,12 +29,19 @@ app.use(rateLimit({
     legacyHeaders: false,
 }));
 
-app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:8080',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
-}));
+// CORS configuration
+const corsOptions = {
+  origin: [
+    'http://localhost:8080',
+    'http://localhost:3000',
+    process.env.FRONTEND_URL, // Use environment variable
+  ].filter(Boolean), // Remove undefined values
+  credentials: true, // Allow cookies
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+};
+
+app.use(cors(corsOptions));
 
 app.use(express.json({ limit: '50kb' }));
 app.use(express.urlencoded({ extended: true, limit: '16kb' }));

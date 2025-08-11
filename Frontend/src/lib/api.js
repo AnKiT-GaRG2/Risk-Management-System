@@ -1,6 +1,23 @@
-
 import axios from 'axios';
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+// Determine the API URL based on environment
+const getApiUrl = () => {
+  // If VITE_API_URL is set, use it
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  
+  // If in production, use relative URLs (assumes frontend and backend are on same domain)
+  if (import.meta.env.PROD) {
+    return '/api';
+  }
+  
+  // Default to localhost for development
+  return 'http://localhost:5000/api';
+};
+
+const API_URL = getApiUrl();
+
 const api = axios.create({
   baseURL: API_URL,
   withCredentials: true, 
@@ -9,11 +26,32 @@ const api = axios.create({
   },
 });
 
+// Add request interceptor for debugging
+api.interceptors.request.use(
+  (config) => {
+    console.log(`Making ${config.method?.toUpperCase()} request to: ${config.baseURL}${config.url}`);
+    return config;
+  },
+  (error) => {
+    console.error('Request interceptor error:', error);
+    return Promise.reject(error);
+  }
+);
+
 api.interceptors.response.use(
   (response) => {
+    console.log(`Response received from: ${response.config.url}`, response.status);
     return response.data;
   },
   async (error) => {
+    console.error('API Error Details:', {
+      url: error.config?.url,
+      method: error.config?.method,
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data
+    });
+
     const originalRequest = error.config;
     if (error.response?.status === 401 && !originalRequest._retry && originalRequest.url !== '/auth/refresh-token') {
       originalRequest._retry = true; 
@@ -23,6 +61,8 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) { 
         console.error('Refresh token failed (from interceptor):', refreshError);
+        // Redirect to login page or clear stored tokens
+        window.location.href = '/login';
         throw new Error(refreshError.response?.data?.message || 'Session expired. Please log in again.');
       }
     }
