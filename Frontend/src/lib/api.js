@@ -20,7 +20,7 @@ const api = axios.create({
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
-  },
+  }
 });
 
 // Request interceptor
@@ -79,11 +79,23 @@ api.interceptors.response.use(
 );
 
 // API functions
-export const adminLogin = async (data) => {
-  console.log('🔐 Attempting admin login...');
-  const response = await api.post('/auth/login', data);
-  console.log('🍪 Cookies after login:', document.cookie);
-  return response;
+export const adminLogin = async (email, password) => {
+  try {
+    // Ensure clean data is sent
+    const cleanEmail = String(email).trim();
+    const cleanPassword = String(password).trim();
+    
+    const response = await api.post('/auth/login', { 
+      email: cleanEmail, 
+      password: cleanPassword 
+    });
+    
+    return response.data;
+  } catch (error) {
+    console.error('Login API Error:', error);
+    const errorMessage = error.response?.data?.message || error.message || 'Authentication failed';
+    throw new Error(errorMessage);
+  }
 };
 
 export const refreshAccessToken = async () => {

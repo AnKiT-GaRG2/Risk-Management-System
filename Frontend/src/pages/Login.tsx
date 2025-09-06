@@ -21,7 +21,13 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      await adminLogin(emailOrUsername, password);
+      // Remove any extra quotes or formatting from the email and password
+      const email = emailOrUsername.trim();
+      const passwordTrimmed = password.trim();
+      
+      console.log('Submitting login data:', { email, password: '********' });
+      
+      await adminLogin(email, passwordTrimmed);
       toast({
         title: "Welcome back!",
         description: `Successfully logged into Return Risk Analyzer.`,
