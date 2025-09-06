@@ -13,12 +13,11 @@ const getApiUrl = () => {
   return 'http://localhost:5000/api';
 };
 
-const API_URL = getApiUrl();
-console.log('🔧 API_URL configured as:', API_URL);
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const api = axios.create({
   baseURL: API_URL,
-  withCredentials: true,
+  withCredentials: true, // This is important for cookies!
   headers: {
     'Content-Type': 'application/json',
   },

@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import Admin from '../models/Admin.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 
-export const login = asyncHandler(async (req, res) => {
+export const adminLogin = asyncHandler(async (req, res) => {
   try {
     const { email, password } = req.body;
     console.log('🔐 Login attempt for:', email);
@@ -87,6 +87,23 @@ export const login = asyncHandler(async (req, res) => {
   }
 });
 
+export const logoutAdmin = asyncHandler(async (req, res) => {
+  console.log('🚪 Logout request received');
+  
+  // Clear refresh token cookie
+  res.clearCookie('refreshToken', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    path: '/'
+  });
+
+  res.status(200).json({
+    success: true,
+    message: 'Logged out successfully'
+  });
+});
+
 export const refreshAccessToken = asyncHandler(async (req, res) => {
   try {
     console.log('🔄 Refresh token request received');
@@ -140,19 +157,6 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
   }
 });
 
-export const logout = asyncHandler(async (req, res) => {
-  console.log('🚪 Logout request received');
-  
-  // Clear refresh token cookie
-  res.clearCookie('refreshToken', {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    path: '/'
-  });
-
-  res.status(200).json({
-    success: true,
-    message: 'Logged out successfully'
-  });
+export const registerAdmin = asyncHandler(async (req, res) => {
+  // Registration logic here
 });
