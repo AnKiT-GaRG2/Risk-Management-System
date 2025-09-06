@@ -21,11 +21,10 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const response = await adminLogin({ emailOrUsername, password });
-      const admin = response.admin; 
+      await adminLogin(emailOrUsername, password);
       toast({
         title: "Welcome back!",
-        description: `Successfully logged into Return Risk Analyzer ${admin ? `as ${admin.username}` : ''}.`,
+        description: `Successfully logged into Return Risk Analyzer.`,
       });
       navigate("/dashboard");
 

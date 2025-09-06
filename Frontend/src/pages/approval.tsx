@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import api from '@/lib/api';
 
 const Approval: React.FC = () => {
   const { id } = useParams<{ id: string }>(); // return id from URL
@@ -24,13 +25,7 @@ const Approval: React.FC = () => {
       console.log(`🔥 FRONTEND: Return ID from params: ${id}`);
       console.log(`🔥 FRONTEND: Full URL will be: ${window.location.origin}${approveUrl}`);
       
-      const response = await fetch(approveUrl, { 
-        method: "POST",
-        credentials: 'include', // Important: Include cookies for authentication
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
+      const response = await api.post(`/returns/${id}/approve`);
 
       console.log('🔥 FRONTEND: Response status:', response.status);
       console.log('🔥 FRONTEND: Response URL:', response.url);

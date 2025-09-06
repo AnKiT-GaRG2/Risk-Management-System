@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import api from '@/lib/api';
 
 const Rejection: React.FC = () => {
   const { id } = useParams<{ id: string }>(); // return id from URL
@@ -22,13 +23,7 @@ const Rejection: React.FC = () => {
       console.log(`🔥 FRONTEND: Attempting to call URL: ${rejectUrl}`);
       console.log(`🔥 FRONTEND: Return ID from params: ${id}`);
       
-      const response = await fetch(rejectUrl, { 
-        method: "POST",
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
+      const response = await api.post(`/returns/${id}/reject`);
 
       console.log('🔥 FRONTEND: Response status:', response.status);
 
