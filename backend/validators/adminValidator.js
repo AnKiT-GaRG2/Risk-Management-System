@@ -7,7 +7,7 @@ const emailSchema = Joi.string().email({ tlds: { allow: false } }); // Basic ema
 // Joi schema for validating admin login credentials
 const adminLoginSchema = Joi.object({
     // This field can now be either a username or an email
-    emailOrUsername: Joi.alternatives()
+    email: Joi.alternatives()
         .try(usernameSchema, emailSchema)
         .required()
         .messages({
