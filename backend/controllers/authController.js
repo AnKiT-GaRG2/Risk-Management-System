@@ -16,7 +16,10 @@ export const adminLogin = asyncHandler(async (req, res) => {
     }
 
     // Find admin by email
-    const admin = await Admin.findOne({ email }).select('+password');
+    const admin = await Admin.findOne({
+  $or: [{ email: e }, { username: e }]
+}).select('+password');
+
     if (!admin) {
       console.log('❌ Admin not found:', email);
       return res.status(401).json({
