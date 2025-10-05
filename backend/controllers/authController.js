@@ -17,7 +17,7 @@ export const adminLogin = asyncHandler(async (req, res) => {
 
     // Find admin by email
     const admin = await Admin.findOne({
-  $or: [{ email: e }, { username: e }]
+  $or: [{ email: email }, { username: email }]
 }).select('+password');
 
     if (!admin) {
@@ -54,8 +54,8 @@ export const adminLogin = asyncHandler(async (req, res) => {
     // Cookie options
     const cookieOptions = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      secure: true,
+      sameSite:'none',
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: '/'
     };
