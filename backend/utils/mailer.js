@@ -7,10 +7,12 @@ console.log('📧 MAIL_USER:', process.env.MAIL_USER);
 console.log('📧 MAIL_PASS:', process.env.MAIL_PASS ? '***configured***' : 'NOT SET');
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true, // use SSL
   auth: {
     user: process.env.MAIL_USER,
-    pass: process.env.MAIL_PASS, // Gmail App Password
+    pass: process.env.MAIL_PASS,
   },
 });
 
