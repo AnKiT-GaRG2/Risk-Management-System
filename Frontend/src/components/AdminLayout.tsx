@@ -90,6 +90,7 @@ const AdminLayout = () => {
     const checkAuth = async () => {
       try {
         const res = await refreshAccessToken();
+        console.log(res);
         
         const { admin } = res.data; 
 

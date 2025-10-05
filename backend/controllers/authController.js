@@ -46,7 +46,7 @@ export const adminLogin = asyncHandler(async (req, res) => {
     );
 
     const refreshToken = jwt.sign(
-      { id: admin._id },
+      { id: admin._id, email: admin.email, role: admin.role  },
       process.env.JWT_REFRESH_SECRET,
       { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d' }
     );
@@ -148,7 +148,7 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
 
     res.status(200).json({
       success: true,
-      data: { accessToken }
+      data: { accessToken, admin }
     });
 
   } catch (error) {
