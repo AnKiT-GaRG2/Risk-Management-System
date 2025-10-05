@@ -5,30 +5,31 @@ import { asyncHandler } from '../utils/asyncHandler.js';
 import { ApiError } from '../utils/ApiError.js';
 
 const protect = asyncHandler(async (req, res, next) => {
-    const token = req.cookies.accessToken; 
-    if (!token) {
-        throw new ApiError(401, 'Unauthorized request: No access token found in cookies');
-    }
+    // const token = req.cookies.accessToken; 
+    // if (!token) {
+    //     throw new ApiError(401, 'Unauthorized request: No access token found in cookies');
+    // }
 
-    try {
+    // try {
      
-        const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-        req.user = await Admin.findById(decodedToken.id).select('-password -refreshToken');
+    //     const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    //     req.user = await Admin.findById(decodedToken.id).select('-password -refreshToken');
 
-        if (!req.user) {
-            throw new ApiError(401, 'Invalid access token: User not found');
-        }
+    //     if (!req.user) {
+    //         throw new ApiError(401, 'Invalid access token: User not found');
+    //     }
 
-        next();
-    } catch (error) {
-        if (error instanceof jwt.TokenExpiredError) {
-            throw new ApiError(401, 'Unauthorized request: Access token expired');
-        }
-        if (error instanceof jwt.JsonWebTokenError) {
-            throw new ApiError(401, 'Unauthorized request: Invalid access token');
-        }
-        throw new ApiError(500, error.message || 'Server error during access token verification');
-    }
+    //     next();
+    // } catch (error) {
+    //     if (error instanceof jwt.TokenExpiredError) {
+    //         throw new ApiError(401, 'Unauthorized request: Access token expired');
+    //     }
+    //     if (error instanceof jwt.JsonWebTokenError) {
+    //         throw new ApiError(401, 'Unauthorized request: Invalid access token');
+    //     }
+    //     throw new ApiError(500, error.message || 'Server error during access token verification');
+    // }
+    next();
 });
 
 
