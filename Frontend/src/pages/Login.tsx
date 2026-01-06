@@ -6,8 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Shield, TrendingDown } from "lucide-react";
-
 import { adminLogin } from "../lib/api";
+import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
   const [emailOrUsername, setEmailOrUsername] = useState("");
@@ -15,37 +15,38 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { setUser, setIsAuthenticated } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      // Remove any extra quotes or formatting from the email and password
       const email = emailOrUsername.trim();
       const passwordTrimmed = password.trim();
-      
-      console.log('Submitting login data:', { email, password: '********' });
-      
-      await adminLogin(email, passwordTrimmed);
+
+      // Call backend login API
+      const res = await adminLogin(email, passwordTrimmed);
+
+      // Set user info and auth state in context
+      console.table(res.data);
+      setUser(res.data);
+      setIsAuthenticated(true);
+
       toast({
         title: "Welcome back!",
         description: `Successfully logged into Return Risk Analyzer.`,
       });
       navigate("/dashboard");
-
     } catch (err: any) {
-      console.error("Login failed:", err);
-
-      const errorMessage = err.message || "An unexpected error occurred."; 
-      
+      const errorMessage = err.message || "An unexpected error occurred.";
       toast({
-          title: "Authentication failed",
-          description: errorMessage,
-          variant: "destructive",
+        title: "Authentication failed",
+        description: errorMessage,
+        variant: "destructive",
       });
     } finally {
-      setIsLoading(false); 
+      setIsLoading(false);
     }
   };
 
@@ -75,13 +76,12 @@ const Login = () => {
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
-                {/* Updated label and input for emailOrUsername */}
                 <Label htmlFor="emailOrUsername">Email Address or Username</Label>
                 <Input
                   id="emailOrUsername"
-                  type="text" 
+                  type="text"
                   placeholder="admin@ecommerce.com or username"
-                  value={emailOrUsername} 
+                  value={emailOrUsername}
                   onChange={(e) => setEmailOrUsername(e.target.value)}
                   required
                   className="h-11"
@@ -110,8 +110,8 @@ const Login = () => {
               {/* Demo Credentials */}
               <div className="mt-6 p-4 bg-muted rounded-lg">
                 <p className="text-sm font-medium text-muted-foreground mb-2">Demo Credentials:</p>
-                <p className="text-xs text-muted-foreground">Email: admin@ecommerce.com</p>
-                <p className="text-xs text-muted-foreground">Password: admin123</p>
+                <p className="text-xs text-muted-foreground">Email: shubhwizard@gmail.com</p>
+                <p className="text-xs text-muted-foreground">Password: shubh@123</p>
               </div>
             </form>
           </CardContent>
