@@ -14,3 +14,20 @@ const transporter = nodemailer.createTransport({
     rejectUnauthorized: false,
   },
 });
+export const sendEmail = async (to, subject, text) => {
+  const mailOptions = {
+    from: process.env.MAIL_USER,
+    to,
+    subject,
+    text,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log("Email sent successfully");
+  }
+  catch (error) {
+    console.error("Error sending email:", error);
+  }
+}
+export default transporter;
