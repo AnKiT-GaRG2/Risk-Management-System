@@ -4,7 +4,7 @@ import axios from 'axios';
 const getApiUrl = () => {
   if (import.meta.env.VITE_API_URL) {
     return import.meta.env.VITE_API_URL;
-  }
+  }``
   
   if (import.meta.env.PROD) {
     return '/api';
@@ -65,8 +65,7 @@ api.interceptors.response.use(
       } catch (refreshError) {
         console.error('❌ Refresh token failed:', refreshError.response?.data?.message);
         
-        // Clear any stored user data and redirect to login
-        localStorage.removeItem('user');
+        // Redirect to login
         window.location.href = '/login';
         
         throw new Error('Session expired. Please log in again.');
@@ -89,6 +88,7 @@ export const adminLogin = async (email, password) => {
       email: cleanEmail, 
       password: cleanPassword 
     });
+    console.table(response.data);
     
     return response.data;
   } catch (error) {

@@ -92,7 +92,7 @@ const AdminLayout = () => {
         const res = await refreshAccessToken();
         console.log(res);
         
-        const { admin } = res.data; 
+        const  admin  = res.data; 
 
         if (admin && admin.username && admin.role) {
             setAdminUser({ name: admin.username, role: admin.role });
