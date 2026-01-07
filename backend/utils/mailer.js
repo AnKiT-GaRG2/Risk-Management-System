@@ -14,20 +14,25 @@ const transporter = nodemailer.createTransport({
     rejectUnauthorized: false,
   },
 });
-export const sendEmail = async (to, subject, text) => {
+
+export const sendApprovalMail = async (to, returnId, customerName = "") => {
   const mailOptions = {
-    from: process.env.MAIL_USER,
+    from: `"Risk Return System" <${process.env.MAIL_USER}>`,
     to,
-    subject,
-    text,
+    subject: `Return ${returnId} Approved`,
+    html: `<p>Approved</p>`,
   };
 
-  try {
-    await transporter.sendMail(mailOptions);
-    console.log("Email sent successfully");
-  }
-  catch (error) {
-    console.error("Error sending email:", error);
-  }
-}
-export default transporter;
+  return transporter.sendMail(mailOptions);
+};
+
+export const sendRejectionMail = async (to, returnId, customerName = "") => {
+  const mailOptions = {
+    from: `"Risk Return System" <${process.env.MAIL_USER}>`,
+    to,
+    subject: `Return ${returnId} Rejected`,
+    html: `<p>Rejected</p>`,
+  };
+
+  return transporter.sendMail(mailOptions);
+};
