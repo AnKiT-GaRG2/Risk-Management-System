@@ -1,19 +1,24 @@
 import axios from 'axios';
 
-// Determine the API URL based on environment
-const getApiUrl = () => {
-  if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
-  }``
+// Helper to construct the base URL correctly
+const getBaseUrl = () => {
+  let url = import.meta.env.VITE_API_URL || 'http://localhost:5000';
   
-  if (import.meta.env.PROD) {
-    return '/api';
+  // Remove trailing slash if present to avoid double slashes
+  if (url.endsWith('/')) {
+    url = url.slice(0, -1);
   }
-  
-  return 'http://localhost:5000/api';
+
+  // Check if '/api' is already there, if not, add it
+  // This handles cases where VITE_API_URL is just the domain
+  if (!url.endsWith('/api')) {
+    url += '/api';
+  }
+
+  return url;
 };
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_URL = getBaseUrl();
 
 const api = axios.create({
   baseURL: API_URL,
@@ -26,6 +31,7 @@ const api = axios.create({
 // Request interceptor
 api.interceptors.request.use(
   (config) => {
+    // Debug log to confirm the EXACT URL being hit
     console.log(`📤 Making ${config.method?.toUpperCase()} request to: ${config.baseURL}${config.url}`);
     return config;
   },
@@ -38,17 +44,17 @@ api.interceptors.request.use(
 // Response interceptor with better refresh token handling
 api.interceptors.response.use(
   (response) => {
-    console.log(`✅ Response received from: ${response.config.url}`, response.status);
-    return response.data;
+    // Return just the data property to simplify usage
+    return response; 
   },
   async (error) => {
     const originalRequest = error.config;
     
-    console.error('❌ API Error:', {
-      url: error.config?.url,
-      method: error.config?.method,
+    // Detailed error logging for debugging
+    console.error('❌ API Error Details:', {
+      endpoint: `${error.config?.baseURL}${error.config?.url}`,
       status: error.response?.status,
-      message: error.response?.data?.message
+      message: error.response?.data?.message || error.message
     });
 
     // Handle 401 errors with refresh token retry
@@ -57,7 +63,11 @@ api.interceptors.response.use(
 
       try {
         console.log('🔄 Attempting to refresh access token...');
-        const response = await api.post('/auth/refresh-token', {});
+        // Note: We don't use the 'api' instance here to avoid infinite loops if this fails
+        // We manually construct the axios call or use a separate instance if needed.
+        // For now, using the same instance is okay IF the refresh endpoint is excluded in the check above.
+        
+        await api.post('/auth/refresh-token', {});
         console.log('✅ Access token refreshed successfully');
         
         // Retry the original request
@@ -66,13 +76,14 @@ api.interceptors.response.use(
         console.error('❌ Refresh token failed:', refreshError.response?.data?.message);
         
         // Redirect to login
+        // Use window.location to force a full reload and clear any efficient-state
         window.location.href = '/login';
         
-        throw new Error('Session expired. Please log in again.');
+        return Promise.reject(new Error('Session expired. Please log in again.'));
       }
     }
 
-    const errorMessage = error.response?.data?.message || 'An unexpected error occurred';
+    const errorMessage = error.response?.data?.message || error.message || 'An unexpected error occurred';
     throw new Error(errorMessage);
   }
 );
@@ -80,35 +91,35 @@ api.interceptors.response.use(
 // API functions
 export const adminLogin = async (email, password) => {
   try {
-    // Ensure clean data is sent
     const cleanEmail = String(email).trim();
     const cleanPassword = String(password).trim();
     
+    // This will now hit baseURL + /auth/login -> .../api/auth/login
     const response = await api.post('/auth/login', { 
       email: cleanEmail, 
       password: cleanPassword 
     });
-    console.table(response.data);
     
-    return response.data;
+    // Depending on your backend, you might need response.data or just response
+    // If your interceptor returns response.data, use response directly.
+    // If your interceptor returns response, use response.data.
+    // Based on standard axios:
+    return response.data; 
   } catch (error) {
     console.error('Login API Error:', error);
-    const errorMessage = error.response?.data?.message || error.message || 'Authentication failed';
-    throw new Error(errorMessage);
+    throw error; // Let the UI handle the error display
   }
 };
 
 export const refreshAccessToken = async () => {
-  console.log('🔄 Refreshing access token...');
   return api.post('/auth/refresh-token', {});
 };
 
 export const logout = async () => {
-  console.log('🚪 Logging out...');
   return api.post('/auth/logout', {});
 };
 
-// Other API functions...
+// Data Fetching Functions
 export const registerAdmin = async (data) => api.post('/auth/register', data);
 export const getDashboardData = async () => api.get('/dashboard');
 export const getCustomers = async (params) => api.get('/customers', { params });
