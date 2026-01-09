@@ -34,26 +34,8 @@ app.use(rateLimit({
 // COR CONFIGURATION 
 
 const corsOptions = {
-  origin: function (origin, callback) {
-    // 1. Allow requests with no origin (like Postman or mobile apps)
-    if (!origin) {
-      return callback(null, true);
-    }
-
-    // 2. Check if the origin is allowed
-    // This allows localhost AND any Vercel preview/production URL
-    const isAllowed = 
-      origin.includes('localhost') || 
-      origin.endsWith('.vercel.app');
-
-    if (isAllowed) {
-      callback(null, true);
-    } else {
-      console.log(`🚫 CORS Blocked: ${origin}`); // Log blocked origins for debugging
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true, 
+  origin: true,       //  This tells the backend to accept ANY origin dynamically
+  credentials: true,  //  Required since your frontend sends cookies
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 };
