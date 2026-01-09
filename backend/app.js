@@ -54,6 +54,7 @@ const corsOptions = {
     }
   },
   credentials: true, 
+  
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 };
@@ -98,7 +99,7 @@ app.get('/', (req, res) => {
     res.send('API is running...');
 });
 
-// Error handling middleware
-app.use(errorMiddleware);
+  // Error handling middleware
+  app.use(errorMiddleware);
 
 export default app;
