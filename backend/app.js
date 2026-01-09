@@ -29,20 +29,36 @@ app.use(rateLimit({
     legacyHeaders: false,
 }));
 
-// CORS configuration
+
+
+// COR CONFIGURATION 
+
 const corsOptions = {
-  origin: [
-    'http://localhost:8080',
-    'http://localhost:3000',
-    process.env.FRONTEND_URL, // Use environment variable
-  ].filter(Boolean), // Remove undefined values
-  credentials: true, // Allow cookies
+  origin: function (origin, callback) {
+    // 1. Allow requests with no origin (like Postman or mobile apps)
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    // 2. Check if the origin is allowed
+    // This allows localhost AND any Vercel preview/production URL
+    const isAllowed = 
+      origin.includes('localhost') || 
+      origin.endsWith('.vercel.app');
+
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      console.log(`🚫 CORS Blocked: ${origin}`); // Log blocked origins for debugging
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true, 
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization','Access-Control-Allow-Origin'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 };
 
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); 
 
 app.use(express.json({ limit: '50kb' }));
 app.use(express.urlencoded({ extended: true, limit: '16kb' }));
