@@ -51,7 +51,7 @@ The Risk Analyser is a comprehensive return management system designed to help b
 - **Node.js** with Express.js
 - **MongoDB** with Mongoose ODM
 - **JWT** for authentication
-- **Nodemailer** for email services
+- **SendGrid** for email services (via HTTP API, free tier supported on Render)
 - **Winston** for logging
 - **Bcrypt** for password hashing
 
@@ -90,7 +90,7 @@ risk-analyser/
 ### Prerequisites
 - **Node.js** (v18 or higher)
 - **MongoDB** (local or cloud instance)
-- **Gmail Account** (for email functionality)
+- **SendGrid Account** (for email functionality)
 
 ### Installation
 
@@ -125,20 +125,21 @@ risk-analyser/
    JWT_EXPIRES_IN=15m
    JWT_REFRESH_EXPIRES_IN=7d
    
-   # Email Configuration
-   MAIL_USER=your-email@gmail.com
-   MAIL_PASS=your-app-password
+   # Email Configuration (SendGrid)
+   SENDGRID_API_KEY=your-sendgrid-api-key
+   SENDGRID_FROM="Risk Return System <your_verified_sendgrid_email@example.com>"
    
    # Server
    PORT=5000
    NODE_ENV=development
    ```
 
-5. **Gmail App Password Setup**
-   - Enable 2-factor authentication on your Gmail account
-   - Go to Google Account Settings → Security → App passwords
-   - Generate an app password for "Mail"
-   - Use this 16-character password in `MAIL_PASS`
+5. **SendGrid Setup**
+   - Sign up at https://sendgrid.com (free tier available)
+   - Verify your sender email address in SendGrid dashboard
+   - Create an API key in SendGrid dashboard
+   - Add your API key to `SENDGRID_API_KEY` in `.env`
+   - Set `SENDGRID_FROM` to your verified sender email (e.g., "Risk Return System <your_verified_sendgrid_email@example.com>")
 
 ### Running the Application
 

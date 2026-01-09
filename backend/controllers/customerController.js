@@ -67,8 +67,7 @@ const getCustomers = asyncHandler(async (req, res) => {
 
   const customers = await Customer.find(query).populate('riskAnalysis'); 
 
-  console.log('Fetched customers:', customers);
-
+ 
 
   const processedCustomers = await Promise.all(customers.map(async customer => { 
     const riskScore = calculateRiskScore(customer.totalOrders, customer.totalReturns);
