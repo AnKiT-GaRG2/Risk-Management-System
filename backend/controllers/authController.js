@@ -30,16 +30,16 @@ export const adminLogin = asyncHandler(async (req, res) => {
     // 4. DEFINE THE MISSING VARIABLES HERE
     const accessTokenCookieOptions = {
         httpOnly: true,
-        secure: true,
-        sameSite: 'none'  ,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 15 * 60 * 1000, // 15 minutes
         path: '/'
     };
 
     const refreshTokenCookieOptions = {
         httpOnly: true,
-        secure: true,
-        sameSite: 'none'  ,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         path: '/'
     };
@@ -92,15 +92,15 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
     res.status(200)
         .cookie('accessToken', newAccessToken, {
             httpOnly: true,
-            secure: true,
-            sameSite: 'none'  ,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
             maxAge: 15 * 60 * 1000,
             path: '/'
         })
         .cookie('refreshToken', newRefreshToken, {
             httpOnly: true,
-            secure: true,
-            sameSite: 'none'  ,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
             maxAge: 7 * 24 * 60 * 60 * 1000,
             path: '/'
         })
