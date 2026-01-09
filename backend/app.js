@@ -32,10 +32,26 @@ app.use(rateLimit({
 
 
 // COR CONFIGURATION 
+// --- SECURE PROD READY CORS SETUP ---
 
 const corsOptions = {
-  origin: true,       //  This tells the backend to accept ANY origin dynamically
-  credentials: true,  //  Required since your frontend sends cookies
+  origin: function (origin, callback) {
+    if (!origin) {
+      return callback(null, true);
+    }
+    const allowedDomains = [
+      process.env.FRONTEND_URL 
+    ];
+    const isAllowed = allowedDomains.includes(origin) || origin.endsWith('.vercel.app');
+
+    if (isAllowed) {
+      callback(null, true); //  Entry Granted
+    } else {
+      console.log(`🚫 CORS Blocked request from: ${origin}`);
+      callback(new Error('Not allowed by CORS')); //Get Out
+    }
+  },
+  credentials: true, 
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 };
